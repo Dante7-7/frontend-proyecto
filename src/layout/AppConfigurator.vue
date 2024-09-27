@@ -1,4 +1,5 @@
 <script setup>
+//menu de paleta 
 import { useLayout } from '@/layout/composables/layout';
 import { $t, updatePreset, updateSurfacePalette } from '@primevue/themes';
 import Aura from '@primevue/themes/aura';

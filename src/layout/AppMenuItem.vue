@@ -1,4 +1,5 @@
 <script setup>
+//trae los iten o iconos que se muestran en el menu
 import { useLayout } from '@/layout/composables/layout';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';

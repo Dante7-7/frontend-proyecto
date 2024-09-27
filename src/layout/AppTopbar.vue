@@ -3,6 +3,27 @@ import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
+
+import { useToast } from "primevue/usetoast";
+const toast = useToast();
+
+const items = [
+
+    {
+        separator: true
+    },
+    {
+        label: 'logout',
+        icon: 'pi pi-fw pi-sign-in',
+        command: () => {
+            window.location.href = 'https://5173-idx-sakai-vuegit-1727458019015.cluster-pgviq6mvsncnqxx6kr7pbz65v6.cloudworkstations.dev/landing';
+        }
+    }
+];
+
+const save = () => {
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Data Saved', life: 3000 });
+};
 </script>
 
 <template>
@@ -60,18 +81,18 @@ const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button>
+                    
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Profile</span>
-                    </button>
+                    <Toast />
+                    <SplitButton :model="items" @click="save">
+                        <span class="flex items-center font-bold">
+                            <i class="pi pi-user" style="font-size: 1.3rem"></i>
+                        </span>
+                    </SplitButton>
+
                 </div>
             </div>
         </div>
