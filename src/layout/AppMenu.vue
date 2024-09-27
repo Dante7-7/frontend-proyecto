@@ -19,7 +19,7 @@ const model = ref([
         to: '/pages',
         items: [
 
-            {
+            /* esto aun no se que hacer con el {
                 label: 'Auth',
                 icon: 'pi pi-fw pi-user',
                 items: [
@@ -39,7 +39,7 @@ const model = ref([
                         to: '/auth/access'
                     }
                 ]
-            },
+            },*/
             {
                 label: 'Programa',
                 icon: 'pi pi-fw pi-pencil',
