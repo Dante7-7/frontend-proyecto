@@ -19,7 +19,7 @@ const model = ref([
         to: '/pages',
         items: [
 
-            /* esto aun no se que hacer con el {
+            /*{
                 label: 'Auth',
                 icon: 'pi pi-fw pi-user',
                 items: [
@@ -42,20 +42,31 @@ const model = ref([
             },*/
             {
                 label: 'Programa',
-                icon: 'pi pi-fw pi-pencil',
+                icon: 'pi pi-briefcase',
                 to: '/pages/crud'
             },
 
             {
-                label: 'Guias',
-                icon: 'pi pi-file-pdf',
-                to: '/pages/empty'
+                label: 'usuarios',
+                icon:  'pi pi-id-card',
+                to:'/pages/usuarios'
             },
             {
-                label: 'usuarios',
-                icon:  'pi pi-fw pi-user',
-                to:'/pages/usuarios'
-            }
+                label: 'Competencia',
+                icon: 'pi pi-fw pi-pencil',
+                to: '/pages/competencia'
+            },
+            {
+                label: 'Resultado',
+                icon: 'pi pi-file-edit',
+                to: '/pages/resultado'
+            },
+            {
+                label: 'Guias',
+                icon: 'pi pi-file-pdf',
+                to: '/pages/guias'
+            },
+
         ]
     },
     

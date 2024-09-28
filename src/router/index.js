@@ -15,15 +15,11 @@ const router = createRouter({
                 },
 
                 //pages
-                {
-                    path: '/pages/empty',
-                    name: 'empty',
-                    component: () => import('@/views/pages/Empty.vue')
-                },
+
                 {
                     path: '/pages/crud',
                     name: 'Programa',
-                    component: () => import('@/views/pages/Crud.vue')
+                    component: () => import('@/views/pages/Programa.vue')
                 },
 
                 {
@@ -31,12 +27,28 @@ const router = createRouter({
                     name: 'usuaios',
                     component: () => import('@/views/pages/Usuario.vue')
                 },
+                {
+                    path: '/pages/competencia',
+                    name: 'competencia',
+                    component: () => import('@/views/pages/Competencia.vue')
+                },
+                {
+                    path: '/pages/resultado',
+                    name: 'resultado',
+                    component: () => import('@/views/pages/Resultado.vue')
+                },
+                {
+                    path: '/pages/guias',
+                    name: 'guias',
+                    component: () => import('@/views/pages/Guia.vue')
+                },
             ]
         },
         {
             path: '/landing',
             name: 'logout',
-            component: () => import('@/views/pages/Landing.vue')
+            component: () => import('@/views/pages/Principal.vue')
+            
         },
         {
             path: '/pages/notfound',
