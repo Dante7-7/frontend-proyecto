@@ -1,7 +1,7 @@
 <script setup>
+import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-import { FilterMatchMode } from '@primevue/core/api';
 
 // Inicializar datos y estados
 const toast = useToast();
@@ -193,7 +193,10 @@ function deleteSelectedArchivos() {
         <Dialog v-model:visible="deleteArchivoDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="archivo">¿Seguro que deseas eliminar <b>{{ archivo.Nombre }}</b>?</span>
+                <span v-if="archivo"
+                    >¿Seguro que deseas eliminar <b>{{ archivo.Nombre }}</b
+                    >?</span
+                >
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteArchivoDialog = false" />

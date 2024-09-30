@@ -1,101 +1,127 @@
 <script setup>
+import ProgramaService from '@/service/ProgramaService';
+import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-import { FilterMatchMode } from '@primevue/core/api';
 
 // Inicializar datos y estados
 const toast = useToast();
 const dt = ref();
-const courses = ref([]);
-const courseDialog = ref(false);
-const deleteCourseDialog = ref(false);
-const deleteCoursesDialog = ref(false);
-const course = ref({});
-const selectedCourses = ref();
+const programas = ref([]);
+const programaDialog = ref(false);
+const deleteProgramaDialog = ref(false);
+const deleteProgramasDialog = ref(false);
+const programa = ref({});
+const selectedProgramas = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const submitted = ref(false);
 
-// Al montar el componente, puedes obtener los cursos de un servicio o API
-onMounted(() => {
-    // Aquí podrías llamar un servicio que obtenga los cursos
-    // Por ejemplo: CourseService.getCourses().then(data => (courses.value = data));
+onMounted(async () => {
+    try {
+        const data = await ProgramaService.getProgramas();
+        programas.value = data;
+    } catch (error) {
+        console.error('Error al cargar los programas:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los programas', life: 3000 });
+    }
 });
 
-// Funciones para el manejo de cursos
+// Funciones para el manejo de programas
 function openNew() {
-    course.value = {};
+    programa.value = {};
     submitted.value = false;
-    courseDialog.value = true;
+    programaDialog.value = true;
 }
 
 function hideDialog() {
-    courseDialog.value = false;
+    programaDialog.value = false;
     submitted.value = false;
 }
 
-function saveCourse() {
+async function savePrograma() {
     submitted.value = true;
 
-    if (course?.value.name?.trim()) {
-        if (course.value.id) {
-            courses.value[findIndexById(course.value.id)] = course.value;
-            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Curso actualizado', life: 3000 });
-        } else {
-            course.value.id = createId();
-            courses.value.push(course.value);
-            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Curso creado', life: 3000 });
-        }
+    if (programa?.value.Nombre?.trim()) {
+        try {
+            if (programa.value.id) {
+                await ProgramaService.savePrograma(programa.value);
+                programas.value[findIndexById(programa.value.id)] = programa.value;
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Programa actualizado', life: 3000 });
+            } else {
+                const { data } = await ProgramaService.savePrograma(programa.value);
+                programas.value.push(data);
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Programa creado', life: 3000 });
+            }
+            const data = await ProgramaService.getProgramas();
+            programas.value = data;
 
-        courseDialog.value = false;
-        course.value = {};
+            programaDialog.value = false;
+            programa.value = {};
+        } catch (error) {
+            console.error('Error al guardar el programa:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el programa', life: 3000 });
+        }
     }
 }
 
-function editCourse(c) {
-    course.value = { ...c };
-    courseDialog.value = true;
+function editPrograma(p) {
+    programa.value = { ...p };
+    programaDialog.value = true;
 }
 
-function confirmDeleteCourse(c) {
-    course.value = c;
-    deleteCourseDialog.value = true;
+function confirmDeletePrograma(p) {
+    programa.value = p;
+    deleteProgramaDialog.value = true;
 }
 
-function deleteCourse() {
-    courses.value = courses.value.filter((val) => val.id !== course.value.id);
-    deleteCourseDialog.value = false;
-    course.value = {};
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Curso eliminado', life: 3000 });
+async function deletePrograma() {
+    try {
+        await ProgramaService.deletePrograma(programa.value.Codigo);
+        programas.value = programas.value.filter((val) => val.Codigo !== programa.value.Codigo);
+        deleteProgramaDialog.value = false;
+        programa.value = {};
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Programa eliminado', life: 3000 });
+    } catch (error) {
+        console.error('Error al eliminar el programa:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el programa', life: 3000 });
+    }
 }
 
 function findIndexById(id) {
-    return courses.value.findIndex((c) => c.id === id);
+    return programas.value.findIndex((p) => p.id === id); // Cambiado de c a p
 }
 
-function createId() {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-}
+// function createId() {
+//     let id = '';
+//     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     for (var i = 0; i < 5; i++) {
+//         id += chars.charAt(Math.floor(Math.random() * chars.length));
+//     }
+//     return id;
+// }
 
 function exportCSV() {
     dt.value.exportCSV();
 }
 
 function confirmDeleteSelected() {
-    deleteCoursesDialog.value = true;
+    deleteProgramasDialog.value = true;
 }
 
-function deleteSelectedCourses() {
-    courses.value = courses.value.filter((val) => !selectedCourses.value.includes(val));
-    deleteCoursesDialog.value = false;
-    selectedCourses.value = null;
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Cursos eliminados', life: 3000 });
+async function deleteSelectedProgramas() {
+    try {
+        const deletePromises = selectedProgramas.value.map((programa) => ProgramaService.deletePrograma(programa.id));
+        await Promise.all(deletePromises);
+        programas.value = programas.value.filter((val) => !selectedProgramas.value.includes(val));
+        deleteProgramasDialog.value = false;
+        selectedProgramas.value = null;
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Programas eliminados', life: 3000 });
+    } catch (error) {
+        console.error('Error al eliminar los programas:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron eliminar los programas', life: 3000 });
+    }
 }
 </script>
 
@@ -104,8 +130,8 @@ function deleteSelectedCourses() {
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="Nuevo Curso" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedCourses || !selectedCourses.length" />
+                    <Button label="Nuevo Programa" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
+                    <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProgramas || !selectedProgramas.length" />
                 </template>
 
                 <template #end>
@@ -115,89 +141,86 @@ function deleteSelectedCourses() {
 
             <DataTable
                 ref="dt"
-                v-model:selection="selectedCourses"
-                :value="courses"
+                v-model:selection="selectedProgramas"
+                :value="programas"
                 dataKey="id"
                 :paginator="true"
                 :rows="10"
                 :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} cursos"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} programas"
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Administrar Cursos</h4>
+                        <h4 class="m-0">Administrar Programas</h4>
                         <InputText v-model="filters['global'].value" placeholder="Buscar..." />
                     </div>
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <Column field="code" header="Código" sortable style="min-width: 12rem"></Column>
-                <Column field="name" header="Nombre" sortable style="min-width: 16rem"></Column>
-                <Column field="creationDate" header="Fecha de Creación" sortable style="min-width: 12rem"></Column>
-                <Column field="description" header="Descripción" sortable style="min-width: 20rem"></Column>
+                <Column field="Codigo" header="Código" sortable style="min-width: 12rem"></Column>
+                <Column field="Nombre" header="Nombre" sortable style="min-width: 16rem"></Column>
+                <Column field="Descripcion" header="Descripción" sortable style="min-width: 20rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCourse(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteCourse(slotProps.data)" />
+                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editPrograma(slotProps.data)" />
+                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeletePrograma(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <!-- Dialog para agregar/editar curso -->
-        <Dialog v-model:visible="courseDialog" :style="{ width: '450px' }" header="Detalles del Curso" :modal="true">
+        <!-- Dialog para agregar/editar programa -->
+        <Dialog v-model:visible="programaDialog" :style="{ width: '450px' }" header="Detalles del Programa" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>
-                    <label for="name" class="block font-bold mb-3">Nombre</label>
-                    <InputText id="name" v-model.trim="course.name" required="true" autofocus :invalid="submitted && !course.name" fluid />
-                    <small v-if="submitted && !course.name" class="text-red-500">El nombre es obligatorio.</small>
+                    <label for="Nombre" class="block font-bold mb-3">Nombre</label>
+                    <InputText id="Nombre" v-model.trim="programa.Nombre" required="true" autofocus :invalid="submitted && !programa.Nombre" fluid />
+                    <small v-if="submitted && !programa.Nombre" class="text-red-500">El nombre es obligatorio.</small>
                 </div>
 
                 <div>
-                    <label for="description" class="block font-bold mb-3">Descripción</label>
-                    <Textarea id="description" v-model="course.description" required="true" rows="3" cols="20" fluid />
+                    <label for="Descripcion" class="block font-bold mb-3">Descripción</label>
+                    <Textarea id="Descripcion" v-model="programa.Descripcion" required="true" rows="3" cols="20" fluid />
                 </div>
 
                 <div>
-                    <label for="creationDate" class="block font-bold mb-3">Fecha de Creación</label>
-                    <InputText id="creationDate" v-model="course.creationDate" required="true" placeholder="yyyy-mm-dd" />
-                </div>
-
-                <div>
-                    <label for="code" class="block font-bold mb-3">Código del Curso</label>
-                    <InputText id="code" v-model="course.code" required="true" fluid />
+                    <label for="Codigo" class="block font-bold mb-3">Código del Programa</label>
+                    <InputText id="Codigo" v-model="programa.Codigo" required="true" fluid />
                 </div>
             </div>
 
             <template #footer>
                 <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
-                <Button label="Guardar" icon="pi pi-check" @click="saveCourse" />
+                <Button label="Guardar" icon="pi pi-check" @click="savePrograma" />
             </template>
         </Dialog>
 
         <!-- Dialog para confirmar la eliminación -->
-        <Dialog v-model:visible="deleteCourseDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
+        <Dialog v-model:visible="deleteProgramaDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="course">¿Seguro que deseas eliminar <b>{{ course.name }}</b>?</span>
+                <span v-if="programa"
+                    >¿Seguro que deseas eliminar <b>{{ programa.Nombre }}</b
+                    >?
+                </span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteCourseDialog = false" />
-                <Button label="Sí" icon="pi pi-check" @click="deleteCourse" />
+                <Button label="No" icon="pi pi-times" text @click="deleteProgramaDialog = false" />
+                <Button label="Sí" icon="pi pi-check" @click="deletePrograma" />
             </template>
         </Dialog>
 
         <!-- Dialog para confirmar eliminación múltiple -->
-        <Dialog v-model:visible="deleteCoursesDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
+        <Dialog v-model:visible="deleteProgramasDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="course">¿Seguro que deseas eliminar los cursos seleccionados?</span>
+                <span v-if="programa">¿Seguro que deseas eliminar los programas seleccionados?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteCoursesDialog = false" />
-                <Button label="Sí" icon="pi pi-check" @click="deleteSelectedCourses" />
+                <Button label="No" icon="pi pi-times" text @click="deleteProgramasDialog = false" />
+                <Button label="Sí" icon="pi pi-check" @click="deleteSelectedProgramas" />
             </template>
         </Dialog>
     </div>
