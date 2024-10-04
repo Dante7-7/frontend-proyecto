@@ -2,22 +2,18 @@
 //vista principal
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 
-function smoothScroll(id) {
-    document.body.click();
-    document.querySelector(id).scrollIntoView({
-        behavior: 'smooth'
-    });
-}
+// function smoothScroll(id) {
+//     document.body.click();
+//     document.querySelector(id).scrollIntoView({
+//         behavior: 'smooth'
+//     });
+// }
 </script>
 
 <template>
-    
     <div class="bg-surface-0 dark:bg-surface-900">
-        
         <div id="home" class="landing-wrapper overflow-hidden">
-            
             <div class="py-6 px-6 mx-0 md:mx-12 lg:mx-20 lg:px-20 flex items-center justify-between relative lg:static">
-                
                 <a class="flex items-center" href="#">
                     <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 mr-2">
                         <path
@@ -47,23 +43,20 @@ function smoothScroll(id) {
                 >
                     <i class="pi pi-bars !text-2xl"></i>
                 </Button>
-                
+
                 <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
                     <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 ml-auto">
-                    <Button label="Login" as="router-link" to="/auth/login" rounded></Button>
-                    
+                        <Button label="Login" as="router-link" to="/auth/login" rounded></Button>
                     </div>
                 </div>
-                
             </div>
-            
 
             <div
                 id="hero"
-                class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden "
-                style=" background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, rgb(238, 239, 175) 0%, rgb(195, 227, 250) 100%); clip-path: ellipse(150% 87% at 93% 13%) "
+                class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden"
+                style="background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, rgb(238, 239, 175) 0%, rgb(195, 227, 250) 100%); clip-path: ellipse(150% 87% at 93% 13%)"
             >
-            <FloatingConfigurator />
+                <FloatingConfigurator />
                 <div class="mx-6 md:mx-20 mt-0 md:mt-6">
                     <h1 class="text-6xl font-bold text-gray-900 leading-tight"><span class="font-light block">Eu sem integer</span>eget magna fermentum</h1>
                     <p class="font-normal text-2xl leading-normal md:mt-4 text-gray-700">Sed blandit libero volutpat sed cras. Fames ac turpis egestas integer. Placerat in egestas erat...</p>
@@ -73,9 +66,6 @@ function smoothScroll(id) {
                     <img src="/demo/images/landing/screen-1.png" alt="Hero Image" class="w-9/12 md:w-auto" />
                 </div>
             </div>
-
-            
-
         </div>
     </div>
 </template>

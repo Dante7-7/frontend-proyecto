@@ -1,7 +1,9 @@
 <script setup>
+import ResultadoService from '@/service/ResultadoService';
+import { FilterMatchMode } from '@primevue/core/api';
+import Select from 'primevue/select';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-import { FilterMatchMode } from '@primevue/core/api';
 
 // Inicializar datos y estados
 const toast = useToast();
@@ -12,15 +14,26 @@ const deleteResultadoDialog = ref(false);
 const deleteResultadosDialog = ref(false);
 const resultado = ref({});
 const selectedResultados = ref();
+const competencias = ref([]);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const submitted = ref(false);
 
-// Al montar el componente, puedes obtener los resultados de un servicio o API
-onMounted(() => {
-    // Aquí podrías llamar un servicio que obtenga los resultados
-    // Por ejemplo: ResultadoService.getResultados().then(data => (resultados.value = data));
+onMounted(async () => {
+    try {
+        const data = await ResultadoService.getResultados();
+        resultados.value = data;
+    } catch (error) {
+        console.error('Error al cargar los resultados:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los resultados', life: 3000 });
+    }
+    try {
+        const data = await ResultadoService.getCompetencias();
+        competencias.value = data;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar las competencias', life: 3000 });
+    }
 });
 
 // Funciones para el manejo de resultados
@@ -35,21 +48,34 @@ function hideDialog() {
     submitted.value = false;
 }
 
-function saveResultado() {
+async function saveResultado() {
     submitted.value = true;
 
-    if (resultado?.value.Nombre?.trim()) {
-        if (resultado.value.id) {
-            resultados.value[findIndexById(resultado.value.id)] = resultado.value;
-            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado actualizado', life: 3000 });
-        } else {
-            resultado.value.id = createId();
-            resultados.value.push(resultado.value);
-            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado creado', life: 3000 });
-        }
+    if (resultado?.value.Nombre?.trim() && resultado.value.id_competencia) {
+        try {
+            const resultadoData = { ...resultado.value };
+            if (resultadoData.id) {
+                // Actualizar resultado
+                const { data } = await ResultadoService.saveResultado(resultadoData.id, resultadoData);
+                resultados.value[findIndexById(resultadoData.id)] = data; // Actualiza el resultado en la lista
+                console.log('Resultado actualizado:', data);
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado actualizado', life: 3000 });
+            } else {
+                const { data } = await ResultadoService.saveResultado(resultadoData);
+                resultados.value.push(data); // Agrega el nuevo resultado a la lista
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado creado', life: 3000 });
+            }
+            const data = await ResultadoService.getResultados();
+            resultados.value = data;
 
-        resultadoDialog.value = false;
-        resultado.value = {};
+            resultadoDialog.value = false;
+            resultado.value = {};
+        } catch (error) {
+            console.error('Error al guardar el resultado:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el resultado', life: 3000 });
+        }
+    } else {
+        toast.add({ severity: 'warn', summary: 'Advertencia', detail: 'Por favor completa todos los campos requeridos.', life: 3000 });
     }
 }
 
@@ -63,25 +89,31 @@ function confirmDeleteResultado(r) {
     deleteResultadoDialog.value = true;
 }
 
-function deleteResultado() {
-    resultados.value = resultados.value.filter((val) => val.id !== resultado.value.id);
-    deleteResultadoDialog.value = false;
-    resultado.value = {};
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado eliminado', life: 3000 });
+async function deleteResultado() {
+    try {
+        await ResultadoService.deleteResultado(resultado.value.Codigo);
+        resultados.value = resultados.value.filter((val) => val.Codigo !== resultado.value.Codigo);
+        deleteResultadoDialog.value = false;
+        resultado.value = {};
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'resultado eliminado', life: 3000 });
+    } catch (error) {
+        console.error('Error al eliminar el resultado:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el resultado', life: 3000 });
+    }
 }
 
 function findIndexById(id) {
     return resultados.value.findIndex((r) => r.id === id);
 }
 
-function createId() {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-}
+// function createId() {
+//     let id = '';
+//     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     for (var i = 0; i < 5; i++) {
+//         id += chars.charAt(Math.floor(Math.random() * chars.length));
+//     }
+//     return id;
+// }
 
 function exportCSV() {
     dt.value.exportCSV();
@@ -91,11 +123,18 @@ function confirmDeleteSelected() {
     deleteResultadosDialog.value = true;
 }
 
-function deleteSelectedResultados() {
-    resultados.value = resultados.value.filter((val) => !selectedResultados.value.includes(val));
-    deleteResultadosDialog.value = false;
-    selectedResultados.value = null;
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultados eliminados', life: 3000 });
+async function deleteSelectedResultados() {
+    try {
+        const deletePromises = selectedResultados.value.map((resultado) => ResultadoService.deleteResultado(resultado.id));
+        await Promise.all(deletePromises);
+        resultados.value = resultados.value.filter((val) => !selectedResultados.value.includes(val));
+        deleteResultadoDialog.value = false;
+        selectedResultados.value = null;
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultados eliminados', life: 3000 });
+    } catch (error) {
+        console.error('Error al eliminar los programas:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron eliminar los resultados', life: 3000 });
+    }
 }
 </script>
 
@@ -136,7 +175,7 @@ function deleteSelectedResultados() {
                 <Column field="Codigo" header="Código" sortable style="min-width: 12rem"></Column>
                 <Column field="Nombre" header="Nombre" sortable style="min-width: 16rem"></Column>
                 <Column field="Descripcion" header="Descripción" sortable style="min-width: 20rem"></Column>
-                <Column field="id_competencia" header="ID Competencia" sortable style="min-width: 12rem"></Column>
+                <Column field="competencia.Nombre" header="Competencia" sortable style="min-width: 12rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editResultado(slotProps.data)" />
@@ -161,8 +200,9 @@ function deleteSelectedResultados() {
                 </div>
 
                 <div>
-                    <label for="id_competencia" class="block font-bold mb-3">ID Competencia</label>
-                    <InputText id="id_competencia" v-model="resultado.id_competencia" required="true" type="number" />
+                    <label for="id_competencia" class="block font-bold mb-3">Competencia</label>
+                    <Select id="id_competencia" v-model="resultado.id_competencia" :options="competencias" optionLabel="Nombre" optionValue="ID" placeholder="Selecciona una competencia" required />
+                    <small v-if="submitted && !resultado.id_competencia" class="text-red-500">La competencia es obligatoria.</small>
                 </div>
 
                 <div>
@@ -181,7 +221,10 @@ function deleteSelectedResultados() {
         <Dialog v-model:visible="deleteResultadoDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="resultado">¿Seguro que deseas eliminar <b>{{ resultado.Nombre }}</b>?</span>
+                <span v-if="resultado"
+                    >¿Seguro que deseas eliminar <b>{{ resultado.Nombre }}</b
+                    >?</span
+                >
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteResultadoDialog = false" />

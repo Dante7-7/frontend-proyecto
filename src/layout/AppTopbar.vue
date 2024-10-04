@@ -51,7 +51,7 @@ const save = () => {
                     </g>
                 </svg>
 
-                <span>SAKAI</span>
+                <span>SUGAS</span>
             </router-link>
         </div>
 

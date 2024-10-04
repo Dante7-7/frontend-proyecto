@@ -24,7 +24,7 @@ onMounted(async () => {
         programas.value = data;
     } catch (error) {
         console.error('Error al cargar los programas:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los programas', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los items', life: 3000 });
     }
 });
 
