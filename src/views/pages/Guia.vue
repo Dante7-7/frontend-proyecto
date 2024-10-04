@@ -1,5 +1,7 @@
 <script setup>
+import ArchivoService from '@/service/ArchivoService';
 import { FilterMatchMode } from '@primevue/core/api';
+import Select from 'primevue/select';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
@@ -12,15 +14,26 @@ const deleteArchivoDialog = ref(false);
 const deleteArchivosDialog = ref(false);
 const archivo = ref({});
 const selectedArchivos = ref();
+const resultados = ref([]);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const submitted = ref(false);
 
-// Al montar el componente, puedes obtener los archivos de un servicio o API
-onMounted(() => {
-    // Aquí podrías llamar un servicio que obtenga los archivos
-    // Por ejemplo: ArchivoService.getArchivos().then(data => (archivos.value = data));
+onMounted(async () => {
+    try {
+        const data = await ArchivoService.getArchivos();
+        archivos.value = data;
+    } catch (error) {
+        console.error('Error al cargar archivos:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar las guias', life: 3000 });
+    }
+    try {
+        const data = await ArchivoService.getResultados();
+        resultados.value = data;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los resultados', life: 3000 });
+    }
 });
 
 // Funciones para el manejo de archivos
@@ -35,21 +48,29 @@ function hideDialog() {
     submitted.value = false;
 }
 
-function saveArchivo() {
+async function saveArchivo() {
     submitted.value = true;
 
     if (archivo?.value.Nombre?.trim()) {
-        if (archivo.value.id) {
-            archivos.value[findIndexById(archivo.value.id)] = archivo.value;
-            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Archivo actualizado', life: 3000 });
-        } else {
-            archivo.value.id = createId();
-            archivos.value.push(archivo.value);
-            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Archivo creado', life: 3000 });
-        }
+        try {
+            if (archivo.value.id) {
+                await ArchivoService.saveResultado(archivo.value);
+                archivo.value[findIndexById(archivo.value.id)] = archivo.value;
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'guia actualizada', life: 3000 });
+            } else {
+                const { data } = await ArchivoService.saveResultado(archivo.value);
+                archivo.value.push(data);
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'guia creada', life: 3000 });
+            }
+            const data = await ArchivoService.getResultados();
+            archivo.value = data;
 
-        archivoDialog.value = false;
-        archivo.value = {};
+            archivoDialog.value = false;
+            archivo.value = {};
+        } catch (error) {
+            console.error('Error al guardar la guia:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la guia', life: 3000 });
+        }
     }
 }
 
@@ -63,25 +84,31 @@ function confirmDeleteArchivo(a) {
     deleteArchivoDialog.value = true;
 }
 
-function deleteArchivo() {
-    archivos.value = archivos.value.filter((val) => val.id !== archivo.value.id);
-    deleteArchivoDialog.value = false;
-    archivo.value = {};
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Archivo eliminado', life: 3000 });
+async function deleteArchivo() {
+    try {
+        await ArchivoService.deleteResultado(archivo.value.Codigo);
+        archivos.value = archivos.value.filter((val) => val.Codigo !== archivo.value.Codigo);
+        deleteArchivoDialog.value = false;
+        archivo.value = {};
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'archivo eliminado', life: 3000 });
+    } catch (error) {
+        console.error('Error al eliminar el resultado:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la guia', life: 3000 });
+    }
 }
 
 function findIndexById(id) {
     return archivos.value.findIndex((a) => a.id === id);
 }
 
-function createId() {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-}
+// function createId() {
+//     let id = '';
+//     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     for (var i = 0; i < 5; i++) {
+//         id += chars.charAt(Math.floor(Math.random() * chars.length));
+//     }
+//     return id;
+// }
 
 function exportCSV() {
     dt.value.exportCSV();
@@ -91,11 +118,18 @@ function confirmDeleteSelected() {
     deleteArchivosDialog.value = true;
 }
 
-function deleteSelectedArchivos() {
-    archivos.value = archivos.value.filter((val) => !selectedArchivos.value.includes(val));
-    deleteArchivosDialog.value = false;
-    selectedArchivos.value = null;
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Archivos eliminados', life: 3000 });
+async function deleteSelectedArchivos() {
+    try {
+        const deletePromises = selectedArchivos.value.map((archivo) => ArchivoService.deleteResultado(archivo.id));
+        await Promise.all(deletePromises);
+        archivos.value = archivos.value.filter((val) => !selectedArchivos.value.includes(val));
+        deleteArchivoDialog.value = false;
+        selectedArchivos.value = null;
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'guias eliminadas', life: 3000 });
+    } catch (error) {
+        console.error('Error al eliminar los programas:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron eliminar las guias', life: 3000 });
+    }
 }
 </script>
 
@@ -135,10 +169,9 @@ function deleteSelectedArchivos() {
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="Codigo" header="Código" sortable style="min-width: 12rem"></Column>
                 <Column field="Nombre" header="Nombre" sortable style="min-width: 16rem"></Column>
-                <Column field="Fecha_Creacion" header="Fecha de Creación" sortable style="min-width: 20rem"></Column>
                 <Column field="Tamaño" header="Tamaño" sortable style="min-width: 12rem"></Column>
                 <Column field="Link" header="Enlace" sortable style="min-width: 16rem"></Column>
-                <Column field="id_resultado" header="ID Resultado" sortable style="min-width: 12rem"></Column>
+                <Column field="resultado.Nombre" header="Resultado" sortable style="min-width: 12rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editArchivo(slotProps.data)" />
@@ -158,11 +191,6 @@ function deleteSelectedArchivos() {
                 </div>
 
                 <div>
-                    <label for="Fecha_Creacion" class="block font-bold mb-3">Fecha de Creación</label>
-                    <InputText id="Fecha_Creacion" v-model="archivo.Fecha_Creacion" required="true" type="date" />
-                </div>
-
-                <div>
                     <label for="Tamaño" class="block font-bold mb-3">Tamaño</label>
                     <InputText id="Tamaño" v-model="archivo.Tamaño" required="true" fluid />
                 </div>
@@ -173,8 +201,9 @@ function deleteSelectedArchivos() {
                 </div>
 
                 <div>
-                    <label for="id_resultado" class="block font-bold mb-3">ID Resultado</label>
-                    <InputText id="id_resultado" v-model="archivo.id_resultado" required="true" type="number" />
+                    <label for="id_resultado" class="block font-bold mb-3">Resultado</label>
+                    <Select id="id_resultado" v-model="archivo.id_resultado" :options="resultados" optionLabel="Nombre" optionValue="ID" placeholder="Selecciona un resultado" required />
+                    <small v-if="submitted && !archivo.id_resultado" class="text-red-500">El resultado es obligatorio.</small>
                 </div>
 
                 <div>
