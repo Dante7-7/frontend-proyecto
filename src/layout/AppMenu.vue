@@ -41,16 +41,17 @@ const model = ref([
                 ]
             },*/
             {
+                label: 'usuarios',
+                icon:  'pi pi-id-card',
+                to:'/pages/usuarios'
+            },
+            {
                 label: 'Programa',
                 icon: 'pi pi-briefcase',
                 to: '/pages/crud'
             },
 
-            {
-                label: 'usuarios',
-                icon:  'pi pi-id-card',
-                to:'/pages/usuarios'
-            },
+
             {
                 label: 'Competencia',
                 icon: 'pi pi-fw pi-pencil',
@@ -65,6 +66,11 @@ const model = ref([
                 label: 'Guias',
                 icon: 'pi pi-file-pdf',
                 to: '/pages/guias'
+            },
+            {
+                label: 'Relacion-Programa-Competencia',
+                icon: 'pi pi-link',
+                to: '/pages/relacion_programa_competencia'
             },
 
         ]

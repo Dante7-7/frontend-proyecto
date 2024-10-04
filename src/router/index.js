@@ -42,6 +42,11 @@ const router = createRouter({
                     name: 'guias',
                     component: () => import('@/views/pages/Guia.vue')
                 },
+                {
+                    path: '/pages/relacion_programa_competencia',
+                    name: 'relacion_programa_competencia',
+                    component: () => import('@/views/pages/Relacion_Programa_Competencia.vue') 
+                }
             ]
         },
         {
