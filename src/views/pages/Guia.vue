@@ -54,16 +54,16 @@ async function saveArchivo() {
     if (archivo?.value.Nombre?.trim()) {
         try {
             if (archivo.value.id) {
-                await ArchivoService.saveResultado(archivo.value);
-                archivo.value[findIndexById(archivo.value.id)] = archivo.value;
+                await ArchivoService.saveArchivo(archivo.value);
+                archivos.value[findIndexById(archivo.value.id)] = archivo.value;
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'guia actualizada', life: 3000 });
             } else {
-                const { data } = await ArchivoService.saveResultado(archivo.value);
-                archivo.value.push(data);
+                const { data } = await ArchivoService.saveArchivo(archivo.value);
+                archivos.value.push(data);
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'guia creada', life: 3000 });
             }
-            const data = await ArchivoService.getResultados();
-            archivo.value = data;
+            const data = await ArchivoService.getArchivos();
+            archivos.value = data;
 
             archivoDialog.value = false;
             archivo.value = {};
@@ -86,7 +86,7 @@ function confirmDeleteArchivo(a) {
 
 async function deleteArchivo() {
     try {
-        await ArchivoService.deleteResultado(archivo.value.Codigo);
+        await ArchivoService.deleteArchivo(archivo.value.Codigo);
         archivos.value = archivos.value.filter((val) => val.Codigo !== archivo.value.Codigo);
         deleteArchivoDialog.value = false;
         archivo.value = {};

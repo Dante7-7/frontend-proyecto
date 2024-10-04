@@ -54,17 +54,19 @@ async function saveResultado() {
     if (resultado?.value.Nombre?.trim() && resultado.value.id_competencia) {
         try {
             const resultadoData = { ...resultado.value };
-            if (resultadoData.id) {
-                // Actualizar resultado
+
+            if (resultadoData.id && typeof resultadoData.id !== 'undefined') {
                 const { data } = await ResultadoService.saveResultado(resultadoData.id, resultadoData);
-                resultados.value[findIndexById(resultadoData.id)] = data; // Actualiza el resultado en la lista
+                resultados.value[findIndexById(resultadoData.id)] = data;
                 console.log('Resultado actualizado:', data);
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado actualizado', life: 3000 });
             } else {
                 const { data } = await ResultadoService.saveResultado(resultadoData);
-                resultados.value.push(data); // Agrega el nuevo resultado a la lista
+                resultados.value.push(data);
+                console.log('Nuevo resultado creado:', data);
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado creado', life: 3000 });
             }
+
             const data = await ResultadoService.getResultados();
             resultados.value = data;
 
