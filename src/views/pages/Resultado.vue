@@ -51,13 +51,17 @@ function hideDialog() {
 async function saveResultado() {
     submitted.value = true;
 
-    if (resultado?.value.Nombre?.trim() && resultado.value.id_competencia) {
+    if (resultado?.value.Nombre?.trim()) {
         try {
             const resultadoData = { ...resultado.value };
 
-            if (resultadoData.id && typeof resultadoData.id !== 'undefined') {
-                const { data } = await ResultadoService.saveResultado(resultadoData.id, resultadoData);
-                resultados.value[findIndexById(resultadoData.id)] = data;
+            if (resultadoData.Codigo) {
+                // Verifica si el código ya existe para actualizar
+                const { data } = await ResultadoService.saveResultado(resultadoData.Codigo, resultadoData);
+                const index = findIndexByCodigo(resultadoData.Codigo); // Encuentra por Código
+                if (index !== -1) {
+                    resultados.value[index] = data; // Actualiza si ya existe
+                }
                 console.log('Resultado actualizado:', data);
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado actualizado', life: 3000 });
             } else {
@@ -104,8 +108,8 @@ async function deleteResultado() {
     }
 }
 
-function findIndexById(id) {
-    return resultados.value.findIndex((r) => r.id === id);
+function findIndexByCodigo(Codigo) {
+    return resultados.value.findIndex((r) => r.Codigo === Codigo);
 }
 
 // function createId() {

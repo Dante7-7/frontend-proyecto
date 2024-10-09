@@ -1,29 +1,20 @@
 <script setup>
-import { ref } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import Dialog from 'primevue/dialog';
-import Button from 'primevue/button';
-import Dropdown from 'primevue/dropdown';
-import MultiSelect from 'primevue/multiselect';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Toolbar from 'primevue/toolbar';
-import InputText from 'primevue/inputtext';
+import RelacionPCService from '@/service/RelacionPCService';
 import { FilterMatchMode } from '@primevue/core/api';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+import Dialog from 'primevue/dialog';
+import InputText from 'primevue/inputtext';
+import Toolbar from 'primevue/toolbar';
+import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
 
 // Variables y referencias
 const toast = useToast();
 const dt = ref(null);
-const programas = ref([
-    { id: 1, nombre: 'Programa A' },
-    { id: 2, nombre: 'Programa B' },
-    { id: 3, nombre: 'Programa C' },
-]);
-const competencias = ref([
-    { id: 1, nombre: 'Competencia 1' },
-    { id: 2, nombre: 'Competencia 2' },
-    { id: 3, nombre: 'Competencia 3' },
-]);
+const programas = ref([]);
+const competencias = ref([]);
 const relaciones = ref([]);
 const programaSeleccionado = ref(null);
 const competenciasSeleccionadas = ref([]);
@@ -32,6 +23,30 @@ const submitted = ref(false);
 const selectedRelaciones = ref([]);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+});
+onMounted(async () => {
+    try {
+        const data = await RelacionPCService.getRelacion();
+        console.log('lo que trae getRelacion', data);
+        relaciones.value = data;
+    } catch (error) {
+        console.log('Error al cargar las relaciones:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar los datos', life: 3000 });
+    }
+    try {
+        const data = await RelacionPCService.getProgramas();
+        programas.value = data;
+    } catch (error) {
+        console.error('Error al cargar la lista de programas:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la lista de programas', life: 3000 });
+    }
+    try {
+        const data = await RelacionPCService.getCompetencias();
+        competencias.value = data;
+    } catch (error) {
+        console.error('error al cargar las competencias:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se puso cargar la lista de competencias', life: 3000 });
+    }
 });
 
 // Función para abrir el diálogo de creación de relación
@@ -42,23 +57,27 @@ function openNewRelacion() {
     relacionDialog.value = true;
 }
 
-// Función para guardar la relación
-function saveRelacion() {
+async function saveRelacion() {
     submitted.value = true;
 
     if (programaSeleccionado.value && competenciasSeleccionadas.value.length > 0) {
         const nuevaRelacion = {
-            id: relaciones.value.length + 1,
-            programa: programaSeleccionado.value,
-            competencias: competenciasSeleccionadas.value,
+            programaId: programaSeleccionado.value.ID,
+            competenciasIds: competenciasSeleccionadas.value.map((competencia) => competencia.ID)
         };
-        relaciones.value.push(nuevaRelacion);
-        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Relación creada', life: 3000 });
 
-        // Cerrar el diálogo y reiniciar el formulario
-        relacionDialog.value = false;
-        programaSeleccionado.value = null;
-        competenciasSeleccionadas.value = [];
+        try {
+            await RelacionPCService.saveRelacion(nuevaRelacion);
+            relaciones.value.push(nuevaRelacion);
+            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Relación creada', life: 3000 });
+
+            relacionDialog.value = false;
+            programaSeleccionado.value = null;
+            competenciasSeleccionadas.value = [];
+        } catch (error) {
+            console.error('Error al guardar la relación:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la relación', life: 3000 });
+        }
     } else {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Debe seleccionar un programa y al menos una competencia', life: 3000 });
     }
@@ -79,7 +98,6 @@ function confirmDeleteSelected() {
 
 <template>
     <div class="card">
-        <!-- Barra de herramientas -->
         <Toolbar class="mb-6">
             <template #start>
                 <Button label="Nueva Relación" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNewRelacion" />
@@ -91,7 +109,6 @@ function confirmDeleteSelected() {
             </template>
         </Toolbar>
 
-        <!-- Tabla de relaciones -->
         <DataTable
             ref="dt"
             v-model:selection="selectedRelaciones"
@@ -113,12 +130,12 @@ function confirmDeleteSelected() {
             </template>
 
             <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-            <Column field="programa.nombre" header="Programa" sortable></Column>
-            <Column field="competencias" header="Competencias">
+            <Column field="Nombre" header="Programa" sortable></Column>
+            <Column field="competencia" header="Competencia">
                 <template #body="slotProps">
-                    <ul>
-                        <li v-for="competencia in slotProps.data.competencias" :key="competencia.id">
-                            {{ competencia.nombre }}
+                    <ul style="list-style-type: none; padding-left: 0">
+                        <li v-for="competencia in slotProps.data.competencias" :key="competencia.ID">
+                            {{ competencia.Nombre }}
                         </li>
                     </ul>
                 </template>
@@ -130,25 +147,16 @@ function confirmDeleteSelected() {
             </Column>
         </DataTable>
 
-        <!-- Dialogo para crear relaciones -->
         <Dialog v-model:visible="relacionDialog" :style="{ width: '600px' }" header="Detalles de la Relación" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="programa" class="block font-bold mb-3">Programa</label>
-                    <Dropdown id="programa" v-model="programaSeleccionado" :options="programas" optionLabel="nombre" placeholder="Seleccione un programa" style="width: 100%;" />
+                    <Dropdown id="programa" v-model="programaSeleccionado" :options="programas" optionLabel="Nombre" placeholder="Seleccione un programa" style="width: 100%" />
                 </div>
 
                 <div>
                     <label for="competencias" class="block font-bold mb-3">Competencias</label>
-                    <MultiSelect id="competencias" v-model="competenciasSeleccionadas" :options="competencias" optionLabel="nombre" placeholder="Seleccione competencias" style="width: 100%;" />
-                </div>
-
-                <!-- Tabla de competencias seleccionadas -->
-                <div>
-                    <h5>Competencias Seleccionadas</h5>
-                    <DataTable :value="competenciasSeleccionadas" responsiveLayout="scroll">
-                        <Column field="nombre" header="Nombre de la Competencia"></Column>
-                    </DataTable>
+                    <MultiSelect id="competencias" v-model="competenciasSeleccionadas" :options="competencias" optionLabel="Nombre" placeholder="Seleccione competencias" style="width: 100%" />
                 </div>
             </div>
 

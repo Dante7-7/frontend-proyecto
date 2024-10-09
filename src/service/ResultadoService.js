@@ -11,9 +11,9 @@ export default {
     },
 
     saveResultado(resultado) {
-        if (resultado.id) {
+        if (resultado.codigo) {
             // Si existe un id, actualiza
-            return api.put(`/resultado/${resultado.id}`, resultado);
+            return api.put(`/resultado/${resultado.codigo}`, resultado);
         } else {
             // Si no existe un id, crea uno nuevo
             return api.post('/resultado', resultado);
