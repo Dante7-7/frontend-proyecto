@@ -6,7 +6,7 @@ const api = axios.create({
 
 export default {
     async getRelacion() {
-        const response = await api.get('/programa/lista-relacion');
+        const response = await api.get('/programa');
         console.log('lo que tiene respose', response);
         return response.data;
     },

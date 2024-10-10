@@ -63,19 +63,21 @@ async function saveRelacion() {
     if (programaSeleccionado.value && competenciasSeleccionadas.value.length > 0) {
         const nuevaRelacion = {
             programaId: programaSeleccionado.value.ID,
-            competenciasIds: competenciasSeleccionadas.value.map((competencia) => competencia.ID)
+            competenciaIds: competenciasSeleccionadas.value.map((competencia) => competencia.ID)
         };
 
         try {
-            await RelacionPCService.saveRelacion(nuevaRelacion);
-            relaciones.value.push(nuevaRelacion);
+            const saveRelacion = await RelacionPCService.saveRelacion(nuevaRelacion);
+            relaciones.value.push(saveRelacion);
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Relación creada', life: 3000 });
 
+            const data = await RelacionPCService.getRelacion();
+            relaciones.value = data;
             relacionDialog.value = false;
             programaSeleccionado.value = null;
             competenciasSeleccionadas.value = [];
         } catch (error) {
-            console.error('Error al guardar la relación:', error);
+            console.error('Error al guardar la relación:', error, saveRelacion);
             toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la relación', life: 3000 });
         }
     } else {
