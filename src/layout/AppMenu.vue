@@ -1,24 +1,20 @@
 <script setup>
 import { ref } from 'vue';
 
-import AppMenuItem from './AppMenuItem.vue';
 import 'primeicons/primeicons.css';
-
-
-
+import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
         label: 'Home',
         items: [{ label: 'Home', icon: 'pi pi-fw pi-home', to: '/' }]
     },
-    
+
     {
         label: 'Pages',
         icon: 'pi pi-fw pi-briefcase',
         to: '/pages',
         items: [
-
             /*{
                 label: 'Auth',
                 icon: 'pi pi-fw pi-user',
@@ -42,15 +38,14 @@ const model = ref([
             },*/
             {
                 label: 'usuarios',
-                icon:  'pi pi-id-card',
-                to:'/pages/usuarios'
+                icon: 'pi pi-id-card',
+                to: '/pages/usuarios'
             },
             {
                 label: 'Programa',
                 icon: 'pi pi-briefcase',
                 to: '/pages/crud'
             },
-
 
             {
                 label: 'Competencia',
@@ -71,12 +66,9 @@ const model = ref([
                 label: 'Relacion-Programa-Competencia',
                 icon: 'pi pi-link',
                 to: '/pages/relacion_programa_competencia'
-            },
-
+            }
         ]
-    },
-    
-    
+    }
 ]);
 </script>
 

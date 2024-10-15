@@ -13,6 +13,7 @@ const archivoDialog = ref(false);
 const deleteArchivoDialog = ref(false);
 const deleteArchivosDialog = ref(false);
 const archivo = ref({});
+const archivoFile = ref(null); // Nueva referencia para el archivo seleccionado
 const selectedArchivos = ref();
 const resultados = ref([]);
 const filters = ref({
@@ -36,7 +37,10 @@ onMounted(async () => {
     }
 });
 
-// Funciones para el manejo de archivos
+// Función para manejar la selección del archivo
+function onFileSelected(event) {
+    archivoFile.value = event.target.files[0];
+}
 function openNew() {
     archivo.value = {};
     submitted.value = false;
@@ -48,29 +52,48 @@ function hideDialog() {
     submitted.value = false;
 }
 
+// Función para guardar el archivo
 async function saveArchivo() {
     submitted.value = true;
 
-    if (archivo?.value.Nombre?.trim()) {
+    if (archivo?.value.Nombre?.trim() && archivoFile.value) {
         try {
-            if (archivo.value.id) {
-                await ArchivoService.saveArchivo(archivo.value);
-                archivos.value[findIndexById(archivo.value.id)] = archivo.value;
-                toast.add({ severity: 'success', summary: 'Éxito', detail: 'guia actualizada', life: 3000 });
-            } else {
-                const { data } = await ArchivoService.saveArchivo(archivo.value);
-                archivos.value.push(data);
-                toast.add({ severity: 'success', summary: 'Éxito', detail: 'guia creada', life: 3000 });
+            const formData = new FormData();
+            formData.append('file', archivoFile.value); // Archivo seleccionado
+            formData.append('Codigo', archivo.value.Codigo);
+            formData.append('Nombre', archivo.value.Nombre);
+            formData.append('Tamaño', String(archivo.value.Tamaño));
+            formData.append('id_resultado', archivo.value.id_resultado);
+
+            for (let pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`);
             }
+
+            if (archivo.value.id) {
+                await ArchivoService.updateArchivo(archivo.value.id, formData);
+                archivos.value[findIndexById(archivo.value.id)] = archivo.value;
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Guía actualizada', life: 3000 });
+            } else {
+                const { data } = await ArchivoService.saveArchivo(formData);
+                archivos.value.push(data);
+                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Guía creada', life: 3000 });
+            }
+            for (let pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`);
+            }
+
             const data = await ArchivoService.getArchivos();
             archivos.value = data;
 
             archivoDialog.value = false;
             archivo.value = {};
+            archivoFile.value = null;
         } catch (error) {
-            console.error('Error al guardar la guia:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la guia', life: 3000 });
+            console.error('Error al guardar la guía:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la guía', life: 3000 });
         }
+    } else {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'El nombre y el archivo son obligatorios', life: 3000 });
     }
 }
 
@@ -196,8 +219,9 @@ async function deleteSelectedArchivos() {
                 </div>
 
                 <div>
-                    <label for="Link" class="block font-bold mb-3">Enlace del Archivo</label>
-                    <InputText id="Link" v-model="archivo.Link" required="true" fluid />
+                    <label for="file" class="block font-bold mb-3">Seleccionar archivo</label>
+                    <input type="file" id="file" @change="onFileSelected" />
+                    <small v-if="submitted && !archivoFile" class="text-red-500">El archivo es obligatorio.</small>
                 </div>
 
                 <div>

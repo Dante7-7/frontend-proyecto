@@ -10,14 +10,24 @@ export default {
         return response.data;
     },
 
-    saveArchivo(archivo) {
-        if (archivo.id) {
-            // Si existe un id, actualiza el programa
-            return api.put(`/archivos/${archivo.id}`, archivo);
+    saveArchivo(formData) {
+        if (formData.has('file')) {
+            const file = formData.get('file');
+            console.log('Nombre del archivo:', file.name);
+            console.log('Tipo de archivo:', file.type);
+            console.log('Tamaño del archivo:', file.size);
         } else {
-            // Si no existe un id, crea un nuevo programa
-            return api.post('/archivos', archivo);
+            console.log('No se encontró el archivo en el FormData.');
         }
+        return api.post('/archivos', formData, {});
+    },
+
+    updateArchivo(id, formData) {
+        return api.put(`/archivos/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
     },
 
     deleteArchivo(codigo) {

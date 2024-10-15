@@ -73,6 +73,7 @@ async function saveRelacion() {
 
             const data = await RelacionPCService.getRelacion();
             relaciones.value = data;
+
             relacionDialog.value = false;
             programaSeleccionado.value = null;
             competenciasSeleccionadas.value = [];
