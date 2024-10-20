@@ -11,13 +11,11 @@ export default {
     },
 
     savePrograma(programa) {
-        if (programa.id) {
-            // Si existe un id, actualiza el programa
-            return api.put(`/programa/${programa.id}`, programa);
-        } else {
-            // Si no existe un id, crea un nuevo programa
-            return api.post('/programa', programa);
-        }
+        return api.post('/programa', programa);
+    },
+
+    update(programa) {
+        return api.patch(`/programa/${programa.Codigo}`, programa);
     },
 
     deletePrograma(codigo) {

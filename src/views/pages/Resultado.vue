@@ -47,7 +47,10 @@ function hideDialog() {
     resultadoDialog.value = false;
     submitted.value = false;
 }
-
+async function refreshArchivos() {
+    const data = await ResultadoService.getResultados();
+    resultados.value = data;
+}
 async function saveResultado() {
     submitted.value = true;
 
@@ -55,25 +58,17 @@ async function saveResultado() {
         try {
             const resultadoData = { ...resultado.value };
 
-            if (resultadoData.Codigo) {
-                // Verifica si el código ya existe para actualizar
-                const { data } = await ResultadoService.saveResultado(resultadoData.Codigo, resultadoData);
-                const index = findIndexByCodigo(resultadoData.Codigo); // Encuentra por Código
-                if (index !== -1) {
-                    resultados.value[index] = data; // Actualiza si ya existe
-                }
-                console.log('Resultado actualizado:', data);
+            if (resultados.value.some((p) => p.Codigo === resultado.value.Codigo)) {
+                await ResultadoService.updateResultado(resultadoData.Codigo, resultadoData);
+                resultados.value[findIndexByCodigo(resultadoData.Codigo)] = resultados.value;
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado actualizado', life: 3000 });
             } else {
-                const { data } = await ResultadoService.saveResultado(resultadoData);
+                const { data } = await ResultadoService.createResultado(resultadoData);
                 resultados.value.push(data);
-                console.log('Nuevo resultado creado:', data);
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'Resultado creado', life: 3000 });
             }
 
-            const data = await ResultadoService.getResultados();
-            resultados.value = data;
-
+            await refreshArchivos();
             resultadoDialog.value = false;
             resultado.value = {};
         } catch (error) {

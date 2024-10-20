@@ -19,15 +19,16 @@ const relaciones = ref([]);
 const programaSeleccionado = ref(null);
 const competenciasSeleccionadas = ref([]);
 const relacionDialog = ref(false);
+const deleteRelacionDialog = ref(false);
 const submitted = ref(false);
 const selectedRelaciones = ref([]);
+const relacionAEliminar = ref(null);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 onMounted(async () => {
     try {
         const data = await RelacionPCService.getRelacion();
-        console.log('lo que trae getRelacion', data);
         relaciones.value = data;
     } catch (error) {
         console.log('Error al cargar las relaciones:', error);
@@ -57,6 +58,11 @@ function openNewRelacion() {
     relacionDialog.value = true;
 }
 
+async function refreshArchivos() {
+    const data = await RelacionPCService.getRelacion();
+    relaciones.value = data;
+}
+
 async function saveRelacion() {
     submitted.value = true;
 
@@ -71,8 +77,7 @@ async function saveRelacion() {
             relaciones.value.push(saveRelacion);
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Relación creada', life: 3000 });
 
-            const data = await RelacionPCService.getRelacion();
-            relaciones.value = data;
+            await refreshArchivos();
 
             relacionDialog.value = false;
             programaSeleccionado.value = null;
@@ -86,10 +91,44 @@ async function saveRelacion() {
     }
 }
 
-// Función para eliminar una relación
-function deleteRelacion(index) {
-    relaciones.value.splice(index, 1);
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Relación eliminada', life: 3000 });
+function confirmDeleteRelacion(relacion) {
+    deleteRelacionDialog.value = true;
+    relacionAEliminar.value = relacion; // Guardar la relación completa
+    console.log('Relación a eliminar:', relacion);
+}
+
+// Función para eliminar una relación específica
+async function deleteRelacion() {
+    if (!relacionAEliminar.value || !relacionAEliminar.value.ID) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se encontró la relación a eliminar', life: 3000 });
+        return;
+    }
+    const { ID: programaId } = relacionAEliminar.value;
+    const competenciasRelacionadas = relaciones.value.find((rel) => rel.ID === programaId)?.competencias || [];
+    if (competenciasRelacionadas.length === 0) {
+        toast.add({ severity: 'warn', summary: 'Advertencia', detail: 'No hay relaciones que eliminar', life: 3000 });
+        deleteRelacionDialog.value = false; // Cierra el diálogo de eliminación
+        return;
+    }
+
+    const relacion = { programaId: relacionAEliminar.value.ID };
+    console.log(relacion);
+
+    try {
+        // Asegúrate de que el servicio esté manejando correctamente la eliminación
+        await RelacionPCService.delete(relacion);
+
+        // Filtra la relación eliminada del array
+        relaciones.value = relaciones.value.filter((rel) => rel.ID !== relacion.ID);
+
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Relación eliminada', life: 3000 });
+        await refreshArchivos();
+        deleteRelacionDialog.value = false;
+        relacionAEliminar.value = null;
+    } catch (error) {
+        console.error('Error al eliminar la relación:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la relación', life: 3000 });
+    }
 }
 
 function confirmDeleteSelected() {
@@ -145,10 +184,22 @@ function confirmDeleteSelected() {
             </Column>
             <Column :exportable="false" style="min-width: 12rem">
                 <template #body="slotProps">
-                    <Button icon="pi pi-trash" outlined rounded severity="danger" @click="deleteRelacion(slotProps.rowIndex)" />
+                    <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteRelacion(slotProps.data)" />
                 </template>
             </Column>
         </DataTable>
+
+        <!-- dialog para confirmar eliminacion -->
+        <Dialog v-model:visible="deleteRelacionDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle !text-3xl" />
+                <span>¿Seguro que deseas eliminar ?</span>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" text @click="deleteRelacionDialog = false" />
+                <Button label="Sí" icon="pi pi-check" severity="danger" @click="deleteRelacion" />
+            </template>
+        </Dialog>
 
         <Dialog v-model:visible="relacionDialog" :style="{ width: '600px' }" header="Detalles de la Relación" :modal="true">
             <div class="flex flex-col gap-6">

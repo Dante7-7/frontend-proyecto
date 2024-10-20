@@ -11,13 +11,11 @@ export default {
     },
 
     saveCompetencia(competencia) {
-        if (competencia.id) {
-            // Si existe un id, actualiza el programa
-            return api.put(`/competencia/${competencia.id}`, competencia);
-        } else {
-            // Si no existe un id, crea un nuevo programa
-            return api.post('/competencia', competencia);
-        }
+        return api.post('/competencia', competencia);
+    },
+
+    updateCompetencia(competencia) {
+        return api.patch(`/competencia/${competencia.Codigo}`, competencia);
     },
 
     deleteCompetencia(codigo) {

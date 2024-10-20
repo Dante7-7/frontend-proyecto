@@ -45,9 +45,9 @@ async function saveCompetencia() {
 
     if (competencia?.value.Nombre?.trim()) {
         try {
-            if (competencia.value.id) {
-                await CompetenciaService.saveCompetencia(competencia.value);
-                competencias.value[findIndexById(competencia.value.id)] = competencia.value;
+            if (competencias.value.some((p) => p.Codigo === competencia.value.Codigo)) {
+                await CompetenciaService.updateCompetencia(competencia.value);
+                competencias.value[findIndexById(competencia.value.Codigo)] = competencia.value;
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'Competencia actualizada', life: 3000 });
             } else {
                 const { data } = await CompetenciaService.saveCompetencia(competencia.value);
@@ -90,8 +90,8 @@ async function deleteCompetencia() {
     }
 }
 
-function findIndexById(id) {
-    return competencias.value.findIndex((c) => c.id === id);
+function findIndexById(Codigo) {
+    return competencias.value.findIndex((c) => c.Codigo === Codigo);
 }
 
 function exportCSV() {

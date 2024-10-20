@@ -10,20 +10,22 @@ export default {
         return response.data;
     },
 
-    saveArchivo(formData) {
-        if (formData.has('file')) {
-            const file = formData.get('file');
-            console.log('Nombre del archivo:', file.name);
-            console.log('Tipo de archivo:', file.type);
-            console.log('Tamaño del archivo:', file.size);
-        } else {
-            console.log('No se encontró el archivo en el FormData.');
-        }
-        return api.post('/archivos', formData, {});
+    uploadArchivo(formData) {
+        return api.post(`/archivos/subir`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
     },
 
-    updateArchivo(id, formData) {
-        return api.put(`/archivos/${id}`, formData, {
+    async saveArchivo(registroData) {
+        console.log('data:', registroData);
+        const response = await api.post('/archivos/guardar', registroData);
+        return response.data;
+    },
+
+    updateArchivo(Codigo, formData) {
+        return api.patch(`/archivos/${Codigo}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

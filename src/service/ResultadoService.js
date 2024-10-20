@@ -10,15 +10,15 @@ export default {
         return response.data;
     },
 
-    saveResultado(resultado) {
-        if (resultado.codigo) {
-            // Si existe un id, actualiza
-            return api.put(`/resultado/${resultado.codigo}`, resultado);
-        } else {
-            // Si no existe un id, crea uno nuevo
-            return api.post('/resultado', resultado);
-        }
+    createResultado(resultado) {
+        return api.post('/resultado', resultado);
     },
+
+    // Actualizar un resultado existente
+    updateResultado(codigo, resultado) {
+        return api.patch(`/resultado/${codigo}`, resultado);
+    },
+
     async getCompetencias() {
         try {
             const response = await api.get('/competencia');

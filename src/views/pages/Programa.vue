@@ -45,9 +45,9 @@ async function savePrograma() {
 
     if (programa?.value.Nombre?.trim()) {
         try {
-            if (programa.value.id) {
-                await ProgramaService.savePrograma(programa.value);
-                programas.value[findIndexById(programa.value.id)] = programa.value;
+            if (programas.value.some((p) => p.Codigo === programa.value.Codigo)) {
+                await ProgramaService.update(programa.value);
+                programas.value[findIndexById(programa.value.Codigo)] = programa.value;
                 toast.add({ severity: 'success', summary: 'Éxito', detail: 'Programa actualizado', life: 3000 });
             } else {
                 const { data } = await ProgramaService.savePrograma(programa.value);
@@ -89,8 +89,8 @@ async function deletePrograma() {
     }
 }
 
-function findIndexById(id) {
-    return programas.value.findIndex((p) => p.id === id); // Cambiado de c a p
+function findIndexById(Codigo) {
+    return programas.value.findIndex((p) => p.Codigo === Codigo); // Cambiado de c a p
 }
 
 // function createId() {

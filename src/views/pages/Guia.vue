@@ -51,49 +51,55 @@ function hideDialog() {
     archivoDialog.value = false;
     submitted.value = false;
 }
+async function refreshArchivos() {
+    const data = await ArchivoService.getArchivos();
+    archivos.value = data;
+}
 
-// Función para guardar el archivo
 async function saveArchivo() {
     submitted.value = true;
 
-    if (archivo?.value.Nombre?.trim() && archivoFile.value) {
-        try {
-            const formData = new FormData();
-            formData.append('file', archivoFile.value); // Archivo seleccionado
-            formData.append('Codigo', archivo.value.Codigo);
-            formData.append('Nombre', archivo.value.Nombre);
-            formData.append('Tamaño', String(archivo.value.Tamaño));
-            formData.append('id_resultado', archivo.value.id_resultado);
+    try {
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', archivoFile.value);
+        const uploadResponse = await ArchivoService.uploadArchivo(formDataUpload);
+        const fileUrl = uploadResponse.data.url;
+        const public_id = uploadResponse.data.public_id;
 
-            for (let pair of formData.entries()) {
-                console.log(`${pair[0]}: ${pair[1]}`);
+        // Crear el objeto de datos para el servidor
+        const registroData = {
+            Codigo: archivo.value.Codigo,
+            Nombre: archivo.value.Nombre,
+            Tamaño: String(archivoFile.value.size),
+            id_resultado: Number(archivo.value.id_resultado),
+            Link: fileUrl,
+            public_id: public_id
+        };
+
+        const archivoExistente = archivos.value.some((p) => p.Codigo === archivo.value.Codigo);
+
+        if (archivoExistente) {
+            await ArchivoService.updateArchivo(archivo.value.Codigo, registroData);
+            const index = findIndexById(archivo.value.Codigo);
+            if (index !== -1) {
+                Object.assign(archivos.value[index], registroData);
             }
-
-            if (archivo.value.id) {
-                await ArchivoService.updateArchivo(archivo.value.id, formData);
-                archivos.value[findIndexById(archivo.value.id)] = archivo.value;
-                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Guía actualizada', life: 3000 });
-            } else {
-                const { data } = await ArchivoService.saveArchivo(formData);
-                archivos.value.push(data);
-                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Guía creada', life: 3000 });
-            }
-            for (let pair of formData.entries()) {
-                console.log(`${pair[0]}: ${pair[1]}`);
-            }
-
-            const data = await ArchivoService.getArchivos();
-            archivos.value = data;
-
-            archivoDialog.value = false;
-            archivo.value = {};
-            archivoFile.value = null;
-        } catch (error) {
-            console.error('Error al guardar la guía:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar la guía', life: 3000 });
+            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Guía actualizada', life: 3000 });
+        } else {
+            const { data } = await ArchivoService.saveArchivo(registroData);
+            archivos.value.push(data);
+            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Guía creada', life: 3000 });
         }
-    } else {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'El nombre y el archivo son obligatorios', life: 3000 });
+        await refreshArchivos();
+        archivoDialog.value = false;
+        archivo.value = {};
+        archivoFile.value = null;
+    } catch (error) {
+        console.error('Error al guardar la guía:', error);
+        const errorMessage = error.response?.data?.message || 'No se pudo guardar la guía'; // Obtener un mensaje de error específico si existe
+        toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 });
+    } finally {
+        await refreshArchivos(); // Refrescar archivos solo si hubo éxito
     }
 }
 
@@ -115,13 +121,13 @@ async function deleteArchivo() {
         archivo.value = {};
         toast.add({ severity: 'success', summary: 'Éxito', detail: 'archivo eliminado', life: 3000 });
     } catch (error) {
-        console.error('Error al eliminar el resultado:', error);
+        console.error('Error al eliminar el archivo:', error);
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la guia', life: 3000 });
     }
 }
 
-function findIndexById(id) {
-    return archivos.value.findIndex((a) => a.id === id);
+function findIndexById(Codigo) {
+    return archivos.value.findIndex((a) => a.Codigo === Codigo);
 }
 
 // function createId() {
@@ -214,13 +220,8 @@ async function deleteSelectedArchivos() {
                 </div>
 
                 <div>
-                    <label for="Tamaño" class="block font-bold mb-3">Tamaño</label>
-                    <InputText id="Tamaño" v-model="archivo.Tamaño" required="true" fluid />
-                </div>
-
-                <div>
                     <label for="file" class="block font-bold mb-3">Seleccionar archivo</label>
-                    <input type="file" id="file" @change="onFileSelected" />
+                    <input type="file" id="file" @change="onFileSelected" enctype="multipart/form-data" />
                     <small v-if="submitted && !archivoFile" class="text-red-500">El archivo es obligatorio.</small>
                 </div>
 
