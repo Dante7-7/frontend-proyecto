@@ -45,7 +45,7 @@ const router = createRouter({
                 {
                     path: '/pages/relacion_programa_competencia',
                     name: 'relacion_programa_competencia',
-                    component: () => import('@/views/pages/Relacion_Programa_Competencia.vue') 
+                    component: () => import('@/views/pages/Relacion_Programa_Competencia.vue')
                 }
             ]
         },
@@ -53,7 +53,6 @@ const router = createRouter({
             path: '/landing',
             name: 'logout',
             component: () => import('@/views/pages/Principal.vue')
-            
         },
         {
             path: '/pages/notfound',

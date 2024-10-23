@@ -1,64 +1,70 @@
-<template>
-    <div class="card-container">
-      <Card v-for="(archivo, index) in archivos" :key="index" style="width: 25rem; overflow: hidden; margin-right: 1rem;">
-        <template #header>
-          <img alt="user header" src="https://primefaces.org/cdn/primevue/images/usercard.png" />
-        </template>
-        <template #title>{{ archivo.nombre }}</template>
-        <template #subtitle>Tamaño: {{ archivo.tamaño }} KB</template>
-        <template #content>
-          <p class="m-0">{{ archivo.descripcion }}</p>
-        </template>
-        <template #footer>
-          <div class="flex gap-4 mt-1">
-            <Button 
-              label="Ver" 
-              class="w-full" 
-              @click="verArchivo(archivo.url)" 
-            />
-            <Button 
-              label="Descargar" 
-              class="w-full" 
-              @click="descargarArchivo(archivo.url, archivo.nombre)" 
-            />
-          </div>
-        </template>
-      </Card>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue';
-  
-  // Aquí almacenas la lista de archivos obtenidos de la base de datos
-  const archivos = ref([
-    { nombre: 'Documento1.pdf', tamaño: 1234, url: 'ruta/al/archivo/Documento1.pdf', descripcion: 'Descripción del Documento 1...' },
-    { nombre: 'Documento2.pdf', tamaño: 5678, url: 'ruta/al/archivo/Documento2.pdf', descripcion: 'Descripción del Documento 2...' },
-    { nombre: 'Documento3.pdf', tamaño: 5678, url: 'ruta/al/archivo/Documento3.pdf', descripcion: 'Descripción del Documento 3...' },
-    // Añadir más documentos según sea necesario
-  ]);
-  
-  // Función para ver el archivo (redirigir al enlace del archivo)
-  const verArchivo = (url) => {
+<script setup>
+import ArchivoService from '@/service/ArchivoService';
+import Button from 'primevue/button';
+import Card from 'primevue/card';
+import { onMounted, ref } from 'vue';
+
+const archivos = ref([]);
+const isLoading = ref(false);
+
+onMounted(async () => {
+    try {
+        const data = await ArchivoService.getArchivos();
+        archivos.value = data;
+    } catch (error) {
+        console.error('Error al obtener archivos:', error);
+    }
+});
+
+// Función para ver el archivo (redirigir al enlace del archivo)
+const verArchivo = (url) => {
     window.open(url, '_blank');
-  };
-  
-  // Función para descargar el archivo
-  const descargarArchivo = (url, nombre) => {
+};
+
+// Función para descargar el archivo
+const descargarArchivo = async (url, nombre) => {
+    isLoading.value = true; // Iniciar carga
     const link = document.createElement('a');
     link.href = url;
-    link.download = nombre; // Nombre del archivo que se descargará
+    link.download = nombre;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-  </script>
-  
-  <style scoped>
-  .card-container {
-    display: flex; /* Usar flexbox para alinear las tarjetas en línea */
-    flex-wrap: wrap; /* Permitir que las tarjetas se ajusten en varias filas si es necesario */
-    gap: 1rem; /* Espacio entre las tarjetas */
-  }
-  </style>
-  
+
+    // Simulando una espera para que el usuario pueda ver el mensaje
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera de 1 segundo
+    isLoading.value = false; // Finalizar carga
+};
+</script>
+
+<template>
+    <div class="card-container">
+        <template v-if="archivos.length === 0">
+            <p>No hay guías creadas.</p>
+        </template>
+        <Card v-for="(archivo, index) in archivos" :key="index" style="width: 25rem; overflow: hidden; margin-right: 1rem">
+            <template #header>
+                <img alt="user header" src="https://primefaces.org/cdn/primevue/images/usercard.png" />
+            </template>
+            <template #title>{{ archivo.Nombre }}</template>
+            <template #subtitle>Tamaño: {{ archivo.Tamaño }} KB</template>
+            <template #content>
+                <p class="m-0">{{ archivo.resultado.Nombre }}</p>
+            </template>
+            <template #footer>
+                <div class="flex gap-4 mt-1">
+                    <Button label="Ver" class="w-full" @click="verArchivo(archivo.Link)" />
+                    <Button label="Descargar" class="w-full" @click="descargarArchivo(archivo.Link, archivo.Nombre)" />
+                </div>
+            </template>
+        </Card>
+    </div>
+</template>
+
+<style scoped>
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+</style>

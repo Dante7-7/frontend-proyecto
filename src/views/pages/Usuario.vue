@@ -1,15 +1,20 @@
 <script setup>
+import RelacionPCService from '@/service/RelacionPCService';
+import UsuarioService from '@/service/UsuarioService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
-// Inicializar datos y estados
 const toast = useToast();
 const dt = ref();
 const usuarios = ref([]);
+const programas = ref([]);
+const roles = ref([]);
 const usuarioDialog = ref(false);
 const deleteUsuarioDialog = ref(false);
 const deleteUsuariosDialog = ref(false);
+const programaSeleccionado = ref(null);
+const rolSeleccionado = ref(null);
 const usuario = ref({});
 const selectedUsuarios = ref();
 const filters = ref({
@@ -17,13 +22,33 @@ const filters = ref({
 });
 const submitted = ref(false);
 
-// Al montar el componente, puedes obtener los usuarios de un servicio o API
-onMounted(() => {
-    // Aquí podrías llamar un servicio que obtenga los usuarios
+onMounted(async () => {
+    try {
+        const response = await UsuarioService.getUsuarios();
+        usuarios.value = response;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al obtener usuarios', life: 3000 });
+    }
+    try {
+        const data = await RelacionPCService.getProgramas();
+        programas.value = data;
+    } catch (error) {
+        console.error('Error al cargar la lista de programas:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la lista de programas', life: 3000 });
+    }
+    try {
+        const data = await UsuarioService.getRoles();
+        roles.value = data;
+    } catch (error) {
+        console.error('Error al cargar los roles:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la lista de roles', life: 3000 });
+    }
 });
 
 // Funciones para el manejo de usuarios
 function openNew() {
+    programaSeleccionado.value = null;
+    rolSeleccionado.value = null;
     usuario.value = {};
     submitted.value = false;
     usuarioDialog.value = true;
@@ -34,21 +59,30 @@ function hideDialog() {
     submitted.value = false;
 }
 
-function saveUsuario() {
+async function saveUsuario() {
     submitted.value = true;
 
-    if (usuario?.value.nombre?.trim() && usuario?.value.clave?.trim()) {
+    if (usuario?.value.name?.trim() && usuario?.value.password?.trim() && rolSeleccionado.value) {
+        usuario.value.role = rolSeleccionado.value.id;
         if (usuario.value.id) {
+            // Actualizar usuario en el backend
+            await UsuarioService.updateUsuario(usuario.value.id, usuario.value);
             usuarios.value[findIndexById(usuario.value.id)] = usuario.value;
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario actualizado', life: 3000 });
         } else {
-            usuario.value.id = createId();
-            usuarios.value.push(usuario.value);
+            // Crear nuevo usuario en el backend
+            const data = await UsuarioService.createUsuario(usuario.value);
+            console.log('aqui');
+            console.log(data);
+            usuarios.value.push(data);
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario creado', life: 3000 });
         }
-
+        const response = await UsuarioService.getUsuarios();
+        usuarios.value = response;
         usuarioDialog.value = false;
         usuario.value = {};
+    } else {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Por favor complete todos los campos obligatorios.', life: 3000 });
     }
 }
 
@@ -62,31 +96,28 @@ function confirmDeleteUsuario(u) {
     deleteUsuarioDialog.value = true;
 }
 
-function deleteUsuario() {
-    usuarios.value = usuarios.value.filter((val) => val.id !== usuario.value.id);
-    deleteUsuarioDialog.value = false;
-    usuario.value = {};
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario eliminado', life: 3000 });
+async function deleteUsuario() {
+    try {
+        console.log(usuario.value.id);
+        await UsuarioService.deleteUsuario(usuario.value.id);
+        usuarios.value = usuarios.value.filter((val) => val.id !== usuario.value.id);
+        deleteUsuarioDialog.value = false;
+        usuario.value = {};
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario eliminado', life: 3000 });
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el usuario', life: 3000 });
+    }
 }
 
 function findIndexById(id) {
     return usuarios.value.findIndex((u) => u.id === id);
 }
 
-function createId() {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-}
-
 function confirmDeleteSelected() {
     deleteUsuariosDialog.value = true;
 }
 
-function deleteSelectedUsuarios() {
+async function deleteSelectedUsuarios() {
     usuarios.value = usuarios.value.filter((val) => !selectedUsuarios.value.includes(val));
     deleteUsuariosDialog.value = false;
     selectedUsuarios.value = null;
@@ -124,8 +155,8 @@ function deleteSelectedUsuarios() {
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <Column field="nombre" header="Nombre" sortable style="min-width: 12rem"></Column>
-                <Column field="clave" header="Clave" sortable style="min-width: 12rem"></Column>
+                <Column field="name" header="Nombre" sortable style="min-width: 12rem"></Column>
+                <Column field="role.rol_name" header="Rol" sortable style="min-width: 12rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUsuario(slotProps.data)" />
@@ -139,15 +170,38 @@ function deleteSelectedUsuarios() {
         <Dialog v-model:visible="usuarioDialog" :style="{ width: '450px' }" header="Detalles del Usuario" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>
-                    <label for="nombre" class="block font-bold mb-3">Nombre</label>
-                    <InputText id="nombre" v-model.trim="usuario.nombre" required="true" autofocus :invalid="submitted && !usuario.nombre" fluid />
-                    <small v-if="submitted && !usuario.nombre" class="text-red-500">El nombre es obligatorio.</small>
+                    <label for="name" class="block font-bold mb-3">Nombre</label>
+                    <InputText id="name" v-model.trim="usuario.name" required="true" autofocus :invalid="submitted && !usuario.name" fluid />
+                    <small v-if="submitted && !usuario.name" class="text-red-500">El nombre es obligatorio.</small>
                 </div>
                 <div>
-                    <label for="clave" class="block font-bold mb-3">Clave</label>
-                    <InputText id="clave" v-model="usuario.clave" required="true" type="password" :invalid="submitted && !usuario.clave" fluid />
-                    <small v-if="submitted && !usuario.clave" class="text-red-500">La clave es obligatoria.</small>
+                    <label for="email" class="block font-bold mb-3">Email</label>
+                    <InputText id="email" v-model="usuario.email" required="true" type="email" :invalid="submitted && !usuario.email" fluid />
+                    <small v-if="submitted && !usuario.email" class="text-red-500">El email es obligatorio.</small>
                 </div>
+                <div>
+                    <label for="cedula" class="block font-bold mb-3">Cédula</label>
+                    <InputText id="cedula" v-model="usuario.cedula" required="true" :invalid="submitted && !usuario.cedula" fluid />
+                    <small v-if="submitted && !usuario.cedula" class="text-red-500">La cédula es obligatoria.</small>
+                </div>
+                <div>
+                    <label for="telefono" class="block font-bold mb-3">Teléfono</label>
+                    <InputText id="telefono" v-model="usuario.telefono" required="true" :invalid="submitted && !usuario.telefono" fluid />
+                    <small v-if="submitted && !usuario.telefono" class="text-red-500">El teléfono es obligatorio.</small>
+                </div>
+                <div>
+                    <label for="password" class="block font-bold mb-3">Contraseña</label>
+                    <InputText id="password" v-model="usuario.password" required="true" type="password" :invalid="submitted && !usuario.password" fluid />
+                    <small v-if="submitted && !usuario.password" class="text-red-500">La contraseña es obligatoria.</small>
+                </div>
+                <div>
+                    <label for="role" class="block font-bold mb-3">Rol</label>
+                    <Dropdown id="role" v-model="rolSeleccionado" :options="roles" optionLabel="rol_name" placeholder="Seleccione un rol" style="width: 100%" />
+                </div>
+                <!-- <div>
+                    <label for="programa" class="block font-bold mb-3">Programa</label>
+                    <Dropdown id="programa" v-model="programaSeleccionado" :options="programas" optionLabel="Nombre" placeholder="Seleccione un programa" style="width: 100%" />
+                </div> -->
             </div>
 
             <template #footer>
