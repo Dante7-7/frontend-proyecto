@@ -21,8 +21,8 @@ const onSubmit = async () => {
         }
         const data = { email: email.value, password: password.value };
         console.log('login', data);
-        const { access_token } = await UsuarioService.Login(data);
-        console.log(access_token);
+        const access_token = await UsuarioService.Login(data);
+        console.log('clave token: ', access_token.access_token);
 
         // Guardar el token y otros datos en localStorage
         localStorage.setItem('token', access_token);

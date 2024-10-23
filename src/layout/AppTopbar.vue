@@ -4,11 +4,12 @@ import AppConfigurator from './AppConfigurator.vue';
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
 
-import { useToast } from "primevue/usetoast";
+import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
 const toast = useToast();
+const router = useRouter();
 
 const items = [
-
     {
         separator: true
     },
@@ -16,7 +17,7 @@ const items = [
         label: 'logout',
         icon: 'pi pi-fw pi-sign-in',
         command: () => {
-            window.location.href = 'https://5173-idx-sakai-vuegit-1727458019015.cluster-pgviq6mvsncnqxx6kr7pbz65v6.cloudworkstations.dev/landing';
+            router.push({ name: 'login' });
         }
     }
 ];
@@ -81,7 +82,6 @@ const save = () => {
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
@@ -92,7 +92,6 @@ const save = () => {
                             <i class="pi pi-user" style="font-size: 1.3rem"></i>
                         </span>
                     </SplitButton>
-
                 </div>
             </div>
         </div>

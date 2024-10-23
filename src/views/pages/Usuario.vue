@@ -59,6 +59,11 @@ function hideDialog() {
     submitted.value = false;
 }
 
+async function refresh() {
+    const response = await UsuarioService.getUsuarios();
+    usuarios.value = response;
+}
+
 async function saveUsuario() {
     submitted.value = true;
 
@@ -77,8 +82,7 @@ async function saveUsuario() {
             usuarios.value.push(data);
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario creado', life: 3000 });
         }
-        const response = await UsuarioService.getUsuarios();
-        usuarios.value = response;
+        await refresh();
         usuarioDialog.value = false;
         usuario.value = {};
     } else {
