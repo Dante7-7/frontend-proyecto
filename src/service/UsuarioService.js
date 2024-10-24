@@ -19,13 +19,20 @@ export default {
         });
     },
     async updateUsuario(id, data) {
-        const response = await api.patch(`/usuarios/${id}`, data, {
+        console.log('data:', data, 'id:', id);
+
+        // const dataUpdate = {
+        //     name: data.name,
+        //     email: data.email,
+        //     telefono: data.telefono,
+        //     cedula: data.cedula
+        // };
+        console.log(data);
+        return await api.patch(`/usuarios/${id}`, data, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        console.log('data:', data, 'id:', id);
-        return response;
     },
     async deleteUsuario(id) {
         console.log('id:', id);

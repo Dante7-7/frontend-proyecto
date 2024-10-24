@@ -16,6 +16,7 @@ const deleteUsuariosDialog = ref(false);
 const programaSeleccionado = ref(null);
 const rolSeleccionado = ref(null);
 const usuario = ref({});
+const isNewUser = ref(true);
 const selectedUsuarios = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -49,6 +50,7 @@ onMounted(async () => {
 function openNew() {
     programaSeleccionado.value = null;
     rolSeleccionado.value = null;
+    isNewUser.value = true;
     usuario.value = {};
     submitted.value = false;
     usuarioDialog.value = true;
@@ -66,19 +68,26 @@ async function refresh() {
 
 async function saveUsuario() {
     submitted.value = true;
+    // validacion de contraseña si es un nuevo usuario
+    if (isNewUser.value && !validatePassword(usuario.value.password)) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'La contraseña debe cumplir con los requisitos de seguridad.', life: 3000 });
+        return;
+    }
 
-    if (usuario?.value.name?.trim() && usuario?.value.password?.trim() && rolSeleccionado.value) {
-        usuario.value.role = rolSeleccionado.value.id;
+    // Solo requerir campos necesarios al actualizar
+    if (usuario?.value.name?.trim() && usuario?.value.email?.trim() && usuario?.value.cedula?.trim() && usuario?.value.telefono?.trim() && (isNewUser.value ? rolSeleccionado.value : true)) {
+        if (isNewUser.value) {
+            usuario.value.role = rolSeleccionado.value.id;
+        }
+
         if (usuario.value.id) {
             // Actualizar usuario en el backend
-            await UsuarioService.updateUsuario(usuario.value.id, usuario.value);
+            await UsuarioService.updateUsuario(usuario.value.id, { name: usuario.value.name, email: usuario.value.email, cedula: usuario.value.cedula, telefono: usuario.value.telefono });
             usuarios.value[findIndexById(usuario.value.id)] = usuario.value;
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario actualizado', life: 3000 });
         } else {
             // Crear nuevo usuario en el backend
             const data = await UsuarioService.createUsuario(usuario.value);
-            console.log('aqui');
-            console.log(data);
             usuarios.value.push(data);
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario creado', life: 3000 });
         }
@@ -93,6 +102,7 @@ async function saveUsuario() {
 function editUsuario(u) {
     usuario.value = { ...u };
     usuarioDialog.value = true;
+    isNewUser.value = false;
 }
 
 function confirmDeleteUsuario(u) {
@@ -126,6 +136,11 @@ async function deleteSelectedUsuarios() {
     deleteUsuariosDialog.value = false;
     selectedUsuarios.value = null;
     toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuarios eliminados', life: 3000 });
+}
+// Validación de contraseña
+function validatePassword(password) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
 }
 </script>
 
@@ -193,14 +208,18 @@ async function deleteSelectedUsuarios() {
                     <InputText id="telefono" v-model="usuario.telefono" required="true" :invalid="submitted && !usuario.telefono" fluid />
                     <small v-if="submitted && !usuario.telefono" class="text-red-500">El teléfono es obligatorio.</small>
                 </div>
-                <div>
+
+                <div v-if="isNewUser">
                     <label for="password" class="block font-bold mb-3">Contraseña</label>
-                    <InputText id="password" v-model="usuario.password" required="true" type="password" :invalid="submitted && !usuario.password" fluid />
-                    <small v-if="submitted && !usuario.password" class="text-red-500">La contraseña es obligatoria.</small>
+                    <Password id="password" v-model="usuario.password" toggleMask />
+                    <small v-if="submitted && !validatePassword(usuario.password)" class="text-red-500">La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial.</small>
                 </div>
-                <div>
+
+                <!-- Mostrar rol solo si es nuevo usuario -->
+                <div v-if="isNewUser">
                     <label for="role" class="block font-bold mb-3">Rol</label>
-                    <Dropdown id="role" v-model="rolSeleccionado" :options="roles" optionLabel="rol_name" placeholder="Seleccione un rol" style="width: 100%" />
+                    <Dropdown id="role" v-model="rolSeleccionado" :options="roles" option-label="rol_name" placeholder="Selecciona un rol" fluid />
+                    <small v-if="submitted && !rolSeleccionado" class="text-red-500">El rol es obligatorio.</small>
                 </div>
                 <!-- <div>
                     <label for="programa" class="block font-bold mb-3">Programa</label>

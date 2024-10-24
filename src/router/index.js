@@ -25,43 +25,51 @@ const router = createRouter({
             // Ruta principal después de iniciar sesión, con layout y las vistas hijas
             path: '/app',
             component: AppLayout,
+            meta: { requiresAuth: true },
             children: [
                 {
                     path: '/dashboard',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    component: () => import('@/views/Dashboard.vue'),
+                    meta: { requiresAuth: true, roles: ['Admin', 'Instructor', 'Coordinador'] }
                 },
 
                 // Páginas dentro de la aplicación
                 {
                     path: '/pages/crud',
                     name: 'programa',
-                    component: () => import('@/views/pages/Programa.vue')
+                    component: () => import('@/views/pages/Programa.vue'),
+                    meta: { requiresAuth: true, roles: ['Admin'] }
                 },
                 {
                     path: '/pages/usuarios',
                     name: 'usuarios',
-                    component: () => import('@/views/pages/Usuario.vue')
+                    component: () => import('@/views/pages/Usuario.vue'),
+                    meta: { requiresAuth: true, roles: ['Admin'] }
                 },
                 {
                     path: '/pages/competencia',
                     name: 'competencia',
-                    component: () => import('@/views/pages/Competencia.vue')
+                    component: () => import('@/views/pages/Competencia.vue'),
+                    meta: { requiresAuth: true, roles: ['Admin'] }
                 },
                 {
                     path: '/pages/resultado',
                     name: 'resultado',
-                    component: () => import('@/views/pages/Resultado.vue')
+                    component: () => import('@/views/pages/Resultado.vue'),
+                    meta: { requiresAuth: true, roles: ['Admin'] }
                 },
                 {
                     path: '/pages/guias',
                     name: 'guias',
-                    component: () => import('@/views/pages/Guia.vue')
+                    component: () => import('@/views/pages/Guia.vue'),
+                    meta: { requiresAuth: true, roles: ['Admin', 'Coordinador'] }
                 },
                 {
                     path: '/pages/relacion_programa_competencia',
                     name: 'relacion_programa_competencia',
-                    component: () => import('@/views/pages/Relacion_Programa_Competencia.vue')
+                    component: () => import('@/views/pages/Relacion_Programa_Competencia.vue'),
+                    meta: { requiresAuth: true, roles: ['Admin'] }
                 }
             ]
         },
@@ -82,6 +90,18 @@ const router = createRouter({
             component: () => import('@/views/pages/auth/Error.vue')
         }
     ]
+});
+router.beforeEach((to, from, next) => {
+    const isAuthenticated = !!localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole'); // Obtener el rol del usuario
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next({ name: 'login' });
+    } else if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+        next({ name: 'accessDenied' }); // Redirigir a acceso denegado si no tiene permiso
+    } else {
+        next();
+    }
 });
 
 export default router;
