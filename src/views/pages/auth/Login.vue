@@ -16,7 +16,7 @@ const onSubmit = async () => {
     submitted.value = true;
     try {
         if (!email.value || !password.value) {
-            toast.add({ severity: 'warn', summary: 'Campos incompletos', detail: 'Por favor ingrese su email y contraseña', life: 3000 });
+            toast.add({ severity: 'error', summary: 'Campos incompletos', detail: 'Por favor ingrese su email y contraseña', life: 3000 });
             return;
         }
         const data = { email: email.value, password: password.value };
@@ -25,14 +25,14 @@ const onSubmit = async () => {
         console.log('clave token: ', access_token.access_token);
 
         // Guardar el token y otros datos en localStorage
-        localStorage.setItem('token', access_token);
+        localStorage.setItem('token', access_token.access_token);
 
         toast.add({ severity: 'success', summary: 'Login exitoso', detail: 'Has iniciado sesión correctamente', life: 3000 });
 
         router.push('/');
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
-        toast.add({ severity: 'error', summary: 'Error de inicio de sesión', detail: 'Credenciales incorrectas o problema con el servidor', life: 3000 });
+        toast.add({ severity: 'error', summary: 'Error de inicio de sesión', detail: 'Credenciales incorrectas o por favor verifique', life: 3000 });
     }
 };
 </script>
@@ -68,7 +68,7 @@ const onSubmit = async () => {
                         <div>
                             <label for="email" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
                             <InputText id="email" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" v-model="email" />
-                            <small v-if="submitted && !email" class="text-red-500">El Email es obligatorio.</small>
+                            <small v-if="submitted && !email" class="text-red-500 block">El Email es obligatorio.</small>
 
                             <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
                             <Password id="password" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
@@ -87,6 +87,8 @@ const onSubmit = async () => {
             </div>
         </div>
     </div>
+    <Toast />
+    <router-view />
 </template>
 
 <style scoped>
