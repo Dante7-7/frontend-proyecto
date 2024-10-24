@@ -5,26 +5,42 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
+            // Ruta principal que redirige a landing
             path: '/',
+            redirect: '/landing'
+        },
+        {
+            // Ruta de la página de inicio (Landing)
+            path: '/landing',
+            name: 'landing',
+            component: () => import('@/views/pages/Principal.vue')
+        },
+        {
+            // Ruta para el login
+            path: '/auth/login',
+            name: 'login',
+            component: () => import('@/views/pages/auth/Login.vue')
+        },
+        {
+            // Ruta principal después de iniciar sesión, con layout y las vistas hijas
+            path: '/app',
             component: AppLayout,
             children: [
                 {
-                    path: '/',
+                    path: '/dashboard',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
                 },
 
-                //pages
-
+                // Páginas dentro de la aplicación
                 {
                     path: '/pages/crud',
-                    name: 'Programa',
+                    name: 'programa',
                     component: () => import('@/views/pages/Programa.vue')
                 },
-
                 {
                     path: '/pages/usuarios',
-                    name: 'usuaios',
+                    name: 'usuarios',
                     component: () => import('@/views/pages/Usuario.vue')
                 },
                 {
@@ -50,20 +66,10 @@ const router = createRouter({
             ]
         },
         {
-            path: '/landing',
-            name: 'logout',
-            component: () => import('@/views/pages/Principal.vue')
-        },
-        {
+            // Ruta para página no encontrada
             path: '/pages/notfound',
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')
-        },
-
-        {
-            path: '/auth/login',
-            name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue')
         },
         {
             path: '/auth/access',

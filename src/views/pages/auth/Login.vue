@@ -29,7 +29,7 @@ const onSubmit = async () => {
 
         toast.add({ severity: 'success', summary: 'Login exitoso', detail: 'Has iniciado sesión correctamente', life: 3000 });
 
-        router.push('/');
+        router.push('/dashboard');
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
         toast.add({ severity: 'error', summary: 'Error de inicio de sesión', detail: 'Credenciales incorrectas o por favor verifique', life: 3000 });

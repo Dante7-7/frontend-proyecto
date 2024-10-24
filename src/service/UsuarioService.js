@@ -3,18 +3,8 @@ import axios from 'axios';
 const api = axios.create({
     baseURL: 'http://localhost:3000/'
 });
-axios.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+const token = localStorage.getItem('token');
+
 export default {
     async getUsuarios() {
         const response = await api.get('/usuarios');
@@ -22,16 +12,28 @@ export default {
     },
     async createUsuario(data) {
         console.log('data:', data);
-        return await api.post('/auth/register', data);
+        return await api.post('/auth/register', data, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
     },
     async updateUsuario(id, data) {
-        const response = await api.patch(`/usuarios/${id}`, data);
+        const response = await api.patch(`/usuarios/${id}`, data, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         console.log('data:', data, 'id:', id);
         return response;
     },
     async deleteUsuario(id) {
         console.log('id:', id);
-        return await api.delete(`/usuarios/${id}`);
+        return await api.delete(`/usuarios/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
     },
     async getRoles() {
         const response = await api.get('/roles');

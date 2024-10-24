@@ -17,7 +17,7 @@ const items = [
         label: 'logout',
         icon: 'pi pi-fw pi-sign-in',
         command: () => {
-            router.push({ name: 'login' });
+            router.push({ name: 'landing' });
         }
     }
 ];
