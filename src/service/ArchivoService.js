@@ -5,8 +5,15 @@ const api = axios.create({
 });
 
 export default {
-    async getArchivos() {
+    async getArchivos(usuarioId) {
+        console.log('id:', usuarioId);
+        const response = await api.get(`/archivos/usuario/${usuarioId}`);
+        return response.data;
+    },
+
+    async getAllArchivos() {
         const response = await api.get('/archivos');
+        console.log('datos archivos', response.data);
         return response.data;
     },
 

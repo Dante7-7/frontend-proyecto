@@ -6,11 +6,14 @@ import { onMounted, ref } from 'vue';
 
 const archivos = ref([]);
 const isLoading = ref(false);
+const usuarioId = localStorage.getItem('usuarioId');
+console.log('usuario id', usuarioId);
 
 onMounted(async () => {
     try {
-        const data = await ArchivoService.getArchivos();
+        const data = await ArchivoService.getArchivos(usuarioId);
         archivos.value = data;
+        console.log(archivos);
     } catch (error) {
         console.error('Error al obtener archivos:', error);
     }
@@ -49,7 +52,7 @@ const descargarArchivo = async (url, nombre) => {
             <template #title>{{ archivo.Nombre }}</template>
             <template #subtitle>Tamaño: {{ archivo.Tamaño }} KB</template>
             <template #content>
-                <p class="m-0">{{ archivo.resultado.Nombre }}</p>
+                <p class="m-0"></p>
             </template>
             <template #footer>
                 <div class="flex gap-4 mt-1">

@@ -27,6 +27,7 @@ const onSubmit = async () => {
         // Guardar el token y otros datos en localStorage
         localStorage.setItem('token', access_token.access_token);
         localStorage.setItem('userRole', access_token.rol); // Guardar rol
+        localStorage.setItem('usuarioId', access_token.id);
 
         toast.add({ severity: 'success', summary: 'Login exitoso', detail: 'Has iniciado sesión correctamente', life: 3000 });
 

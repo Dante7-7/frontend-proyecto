@@ -16,6 +16,7 @@ const archivo = ref({});
 const archivoFile = ref(null); // Nueva referencia para el archivo seleccionado
 const selectedArchivos = ref();
 const resultados = ref([]);
+//const usuarioId = localStorage.getItem('usuarioId');
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -23,8 +24,9 @@ const submitted = ref(false);
 
 onMounted(async () => {
     try {
-        const data = await ArchivoService.getArchivos();
+        const data = await ArchivoService.getAllArchivos();
         archivos.value = data;
+        console.log('archivos', archivos);
     } catch (error) {
         console.error('Error al cargar archivos:', error);
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar las guias', life: 3000 });
