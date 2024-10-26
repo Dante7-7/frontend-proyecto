@@ -32,7 +32,7 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
                             />
                         </g>
                     </svg>
-                    <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">SAKAI</span>
+                    <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">SUGAS</span>
                 </a>
                 <Button
                     class="lg:!hidden"

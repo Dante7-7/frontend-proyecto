@@ -54,7 +54,7 @@ function hideDialog() {
     submitted.value = false;
 }
 async function refreshArchivos() {
-    const data = await ArchivoService.getArchivos();
+    const data = await ArchivoService.getAllArchivos();
     archivos.value = data;
 }
 
@@ -92,7 +92,6 @@ async function saveArchivo() {
             archivos.value.push(data);
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Guía creada', life: 3000 });
         }
-        await refreshArchivos();
         archivoDialog.value = false;
         archivo.value = {};
         archivoFile.value = null;

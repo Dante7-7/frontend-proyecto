@@ -35,7 +35,7 @@ onMounted(async () => {
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar los datos', life: 3000 });
     }
     try {
-        const data = await RelacionPCService.getProgramas();
+        const data = await RelacionPCService.getRelacion();
         programas.value = data;
     } catch (error) {
         console.error('Error al cargar la lista de programas:', error);

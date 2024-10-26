@@ -2,11 +2,12 @@
 import ArchivoService from '@/service/ArchivoService';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const archivos = ref([]);
 const isLoading = ref(false);
 const usuarioId = localStorage.getItem('usuarioId');
+const searchQuery = ref('');
 console.log('usuario id', usuarioId);
 
 onMounted(async () => {
@@ -19,6 +20,14 @@ onMounted(async () => {
     }
 });
 
+const filteredArchivos = computed(() => {
+    // Agregar esta línea
+    return archivos.value.filter(
+        (
+            archivo // Agregar esta línea
+        ) => archivo.Nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) // Agregar esta línea
+    );
+});
 // Función para ver el archivo (redirigir al enlace del archivo)
 const verArchivo = (url) => {
     window.open(url, '_blank');
@@ -26,26 +35,42 @@ const verArchivo = (url) => {
 
 // Función para descargar el archivo
 const descargarArchivo = async (url, nombre) => {
+    console.log('Iniciando descarga:', url); // Debugging
     isLoading.value = true; // Iniciar carga
+
     const link = document.createElement('a');
     link.href = url;
     link.download = nombre;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 
-    // Simulando una espera para que el usuario pueda ver el mensaje
+    // Verificar si el enlace es accesible
+    fetch(url)
+        .then((response) => {
+            if (response.ok) {
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                console.error('Error al acceder a la URL:', response.statusText);
+            }
+        })
+        .catch((error) => {
+            console.error('Error al descargar el archivo:', error);
+        });
+
     await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera de 1 segundo
-    isLoading.value = false; // Finalizar carga
+    isLoading.value = false;
 };
 </script>
 
 <template>
+    <div>
+        <InputText v-model="searchQuery" placeholder="Buscar archivo..." class="mb-4" />
+    </div>
     <div class="card-container">
-        <template v-if="archivos.length === 0">
-            <p>No hay guías creadas.</p>
+        <template v-if="filteredArchivos.length === 0">
+            <p>No hay guías creadas o asignadas.</p>
         </template>
-        <Card v-for="(archivo, index) in archivos" :key="index" style="width: 25rem; overflow: hidden; margin-right: 1rem">
+        <Card v-for="(archivo, index) in filteredArchivos" :key="index" style="width: 25rem; overflow: hidden; margin-right: 1rem">
             <template #header>
                 <img alt="user header" src="https://primefaces.org/cdn/primevue/images/usercard.png" />
             </template>

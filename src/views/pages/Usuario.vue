@@ -8,16 +8,18 @@ import { onMounted, ref } from 'vue';
 const toast = useToast();
 const dt = ref();
 const usuarios = ref([]);
-const programas = ref([]);
 const roles = ref([]);
 const usuarioDialog = ref(false);
 const deleteUsuarioDialog = ref(false);
 const deleteUsuariosDialog = ref(false);
-const programaSeleccionado = ref(null);
 const rolSeleccionado = ref(null);
 const usuario = ref({});
 const isNewUser = ref(true);
 const selectedUsuarios = ref();
+const competenciasDialog = ref(false);
+const competenciasDisponibles = ref([]);
+const competenciasSeleccionadas = ref([]);
+const usuarioSeleccionado = ref(null);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -26,16 +28,10 @@ const submitted = ref(false);
 onMounted(async () => {
     try {
         const response = await UsuarioService.getUsuarios();
+        console.log(usuarios);
         usuarios.value = response;
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Error al obtener usuarios', life: 3000 });
-    }
-    try {
-        const data = await RelacionPCService.getProgramas();
-        programas.value = data;
-    } catch (error) {
-        console.error('Error al cargar la lista de programas:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la lista de programas', life: 3000 });
     }
     try {
         const data = await UsuarioService.getRoles();
@@ -44,11 +40,16 @@ onMounted(async () => {
         console.error('Error al cargar los roles:', error);
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la lista de roles', life: 3000 });
     }
+    try {
+        const response = await RelacionPCService.getCompetencias();
+        competenciasDisponibles.value = response;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar la lista de competencias', life: 3000 });
+    }
 });
 
 // Funciones para el manejo de usuarios
 function openNew() {
-    programaSeleccionado.value = null;
     rolSeleccionado.value = null;
     isNewUser.value = true;
     usuario.value = {};
@@ -142,6 +143,23 @@ function validatePassword(password) {
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return regex.test(password);
 }
+
+async function openAssignCompetencias(usuario) {
+    usuarioSeleccionado.value = usuario;
+    competenciasDialog.value = true;
+}
+
+async function saveCompetencias() {
+    try {
+        console.log('ids', competenciasSeleccionadas.value);
+        await UsuarioService.agregarCompetenciasAUsuario(usuarioSeleccionado.value.id, competenciasSeleccionadas.value);
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Competencias asignadas al usuario', life: 3000 });
+        competenciasDialog.value = false;
+        competenciasSeleccionadas.value = [];
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron asignar las competencias', life: 3000 });
+    }
+}
 </script>
 
 <template>
@@ -179,6 +197,7 @@ function validatePassword(password) {
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUsuario(slotProps.data)" />
+                        <Button icon="pi pi-plus" outlined rounded class="mr-2" @click="openAssignCompetencias(slotProps.data)" label="Asignar Competencias" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteUsuario(slotProps.data)" />
                     </template>
                 </Column>
@@ -221,10 +240,6 @@ function validatePassword(password) {
                     <Dropdown id="role" v-model="rolSeleccionado" :options="roles" option-label="rol_name" placeholder="Selecciona un rol" fluid />
                     <small v-if="submitted && !rolSeleccionado" class="text-red-500">El rol es obligatorio.</small>
                 </div>
-                <!-- <div>
-                    <label for="programa" class="block font-bold mb-3">Programa</label>
-                    <Dropdown id="programa" v-model="programaSeleccionado" :options="programas" optionLabel="Nombre" placeholder="Seleccione un programa" style="width: 100%" />
-                </div> -->
             </div>
 
             <template #footer>
@@ -257,6 +272,17 @@ function validatePassword(password) {
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteUsuariosDialog = false" />
                 <Button label="Sí" icon="pi pi-check" @click="deleteSelectedUsuarios" />
+            </template>
+        </Dialog>
+        <!--dialog para agregar competencias a los usuarios-->
+        <Dialog v-model:visible="competenciasDialog" :style="{ width: '450px' }" header="Asignar Competencias" :modal="true">
+            <div>
+                <label for="competencias" class="block font-bold mb-3">Selecciona Competencias</label>
+                <MultiSelect id="competencias" v-model="competenciasSeleccionadas" :options="competenciasDisponibles" option-label="Nombre" option-value="ID" placeholder="Selecciona competencias" style="width: 100%" />
+            </div>
+            <template #footer>
+                <Button label="Cancelar" icon="pi pi-times" text @click="competenciasDialog = false" />
+                <Button label="Guardar" icon="pi pi-check" @click="saveCompetencias" />
             </template>
         </Dialog>
     </div>

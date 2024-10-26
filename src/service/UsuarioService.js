@@ -20,13 +20,6 @@ export default {
     },
     async updateUsuario(id, data) {
         console.log('data:', data, 'id:', id);
-
-        // const dataUpdate = {
-        //     name: data.name,
-        //     email: data.email,
-        //     telefono: data.telefono,
-        //     cedula: data.cedula
-        // };
         console.log(data);
         return await api.patch(`/usuarios/${id}`, data, {
             headers: {
@@ -35,7 +28,7 @@ export default {
         });
     },
     async deleteUsuario(id) {
-        console.log('id:', id);
+        console.log('id usuario:', id);
         return await api.delete(`/usuarios/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -51,5 +44,20 @@ export default {
         const response = await api.post('auth/login', data);
         console.log('lo que devuelve login:', response.data);
         return response.data;
+    },
+
+    async agregarCompetenciasAUsuario(id, data) {
+        console.log('id', id, 'competencias:', data);
+        const response = await api.post(
+            `usuarios/${id}/competencias`,
+            { competenciasIds: data },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        console.log('add:', response.data);
+        return response;
     }
 };
