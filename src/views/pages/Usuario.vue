@@ -152,8 +152,14 @@ async function openAssignCompetencias(usuario) {
 async function saveCompetencias() {
     try {
         console.log('ids', competenciasSeleccionadas.value);
-        await UsuarioService.agregarCompetenciasAUsuario(usuarioSeleccionado.value.id, competenciasSeleccionadas.value);
-        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Competencias asignadas al usuario', life: 3000 });
+        const response = await UsuarioService.agregarCompetenciasAUsuario(usuarioSeleccionado.value.id, competenciasSeleccionadas.value);
+        toast.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: response.data.mensaje,
+            life: 3000
+        });
+        await refresh();
         competenciasDialog.value = false;
         competenciasSeleccionadas.value = [];
     } catch (error) {
@@ -199,6 +205,7 @@ async function saveCompetencias() {
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUsuario(slotProps.data)" />
                         <Button icon="pi pi-plus" outlined rounded class="mr-2" @click="openAssignCompetencias(slotProps.data)" label="Asignar Competencias" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteUsuario(slotProps.data)" />
+                        <Dropdown :options="slotProps.data.competencias" option-label="Nombre" placeholder="Ver Competencias" style="cursor: default" showClear="false" />
                     </template>
                 </Column>
             </DataTable>
