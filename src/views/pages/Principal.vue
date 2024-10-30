@@ -3,10 +3,10 @@
 import Carousel from 'primevue/carousel';
 
 const images = [
-  { src: '/demo/images/landing/screen-1.png', alt: 'Imagen 1' },
-  { src: '/demo/images/landing/screen-2.png', alt: 'Imagen 2' },
-  { src: '/demo/images/landing/screen-3.png', alt: 'Imagen 3' }
-  // Agrega más imágenes según sea necesario
+    { src: '/demo/images/landing/imagen-05.png', alt: 'Imagen 1' },
+    { src: '/demo/images/landing/imagen-02.png', alt: 'Imagen 2' },
+    { src: '/demo/images/landing/imagen-04.png', alt: 'Imagen 3' }
+    // Agrega más imágenes según sea necesario
 ];
 // function smoothScroll(id) {
 //     document.body.click();
@@ -65,21 +65,13 @@ const images = [
                 <FloatingConfigurator />
 
                 <div class="flex justify-center md:justify-end">
-                    <Carousel 
-                        :value="images" 
-                        :numVisible="1" 
-                        :numScroll="1" 
-                        :circular="true" 
-                        :autoplayInterval="3000" 
-                        class="w-9/12 md:w-auto">
+                    <Carousel :value="images" :numVisible="1" :numScroll="1" :circular="true" :autoplayInterval="3000" class="w-9/12 md:w-auto">
                         <template #item="slotProps">
                             <img :src="slotProps.data.src" :alt="slotProps.data.alt" class="w-full h-auto" />
                         </template>
                     </Carousel>
-                    
                 </div>
             </div>
         </div>
     </div>
-    
 </template>
