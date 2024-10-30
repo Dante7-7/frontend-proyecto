@@ -17,6 +17,8 @@ const items = [
         label: 'logout',
         icon: 'pi pi-fw pi-sign-in',
         command: () => {
+            localStorage.removeItem('token');
+            toast.add({ severity: 'info', summary: 'Logged out', detail: 'You have been logged out.', life: 3000 });
             router.push({ name: 'landing' });
         }
     }

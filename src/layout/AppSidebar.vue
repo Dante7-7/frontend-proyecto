@@ -1,7 +1,6 @@
 <script setup>
-//este es el cuerpo del menu 
+//este es el cuerpo del menu
 import AppMenu from './AppMenu.vue';
-
 </script>
 
 <template>
