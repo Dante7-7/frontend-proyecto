@@ -1,6 +1,7 @@
 <script setup>
 //vista principal
 import Carousel from 'primevue/carousel';
+import Tag from 'primevue/tag';
 
 const images = [
     { src: '/demo/images/landing/imagen-05.png', alt: 'Imagen 1' },
@@ -14,6 +15,8 @@ const images = [
 //         behavior: 'smooth'
 //     });
 // }
+
+
 </script>
 
 <template>
@@ -63,8 +66,11 @@ const images = [
                 style="background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, rgb(238, 239, 175) 0%, rgb(195, 227, 250) 100%); clip-path: ellipse(150% 87% at 93% 13%)"
             >
                 <FloatingConfigurator />
-
+                <div class="quote-container">
+                    <Tag class="quote-tag" value="La enseñanza nos abre puertas; el aprendizaje nos lleva más allá." />
+                </div>
                 <div class="flex justify-center md:justify-end">
+                   
                     <Carousel :value="images" :numVisible="1" :numScroll="1" :circular="true" :autoplayInterval="3000" class="w-9/12 md:w-auto">
                         <template #item="slotProps">
                             <img :src="slotProps.data.src" :alt="slotProps.data.alt" class="w-full h-auto" />
@@ -75,3 +81,26 @@ const images = [
         </div>
     </div>
 </template>
+
+<style scoped>
+.quote-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px; /* Espacio alrededor del contenedor */
+}
+
+.quote-tag {
+  font-family: 'Georgia', serif;
+  font-size: 1.5rem;
+  color: #374151; /* Gris oscuro para el texto */
+  background-color: #e5e7eb; /* Gris claro para el fondo */
+  border: none;
+  padding: 20px 30px; /* Espacio interno de la etiqueta */
+  border-radius: 12px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  text-align: center;
+  line-height: 1.6; /* Altura de línea para mayor espacio entre líneas */
+}
+</style>
