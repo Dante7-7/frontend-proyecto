@@ -98,10 +98,6 @@ function exportCSV() {
     dt.value.exportCSV();
 }
 
-function confirmDeleteSelected() {
-    deleteCompetenciasDialog.value = true;
-}
-
 async function deleteSelectedCompetencias() {
     try {
         const deletePromises = selectedCompetencias.value.map((competencia) => CompetenciaService.deleteCompetencia(competencia.Codigo));
@@ -123,7 +119,6 @@ async function deleteSelectedCompetencias() {
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="Nueva competencia" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedCompetencias || !selectedCompetencias.length" />
                 </template>
 
                 <template #end>
@@ -150,7 +145,6 @@ async function deleteSelectedCompetencias() {
                     </div>
                 </template>
 
-                <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="Codigo" header="Código" sortable style="min-width: 12rem"></Column>
                 <Column field="Nombre" header="Nombre" sortable style="min-width: 16rem"></Column>
                 <Column field="Tipo" header="Tipo" sortable style="min-width: 12rem"></Column>

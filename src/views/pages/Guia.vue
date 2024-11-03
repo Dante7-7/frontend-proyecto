@@ -144,10 +144,6 @@ function exportCSV() {
     dt.value.exportCSV();
 }
 
-function confirmDeleteSelected() {
-    deleteArchivosDialog.value = true;
-}
-
 async function deleteSelectedArchivos() {
     try {
         const deletePromises = selectedArchivos.value.map((archivo) => ArchivoService.deleteResultado(archivo.id));
@@ -169,7 +165,6 @@ async function deleteSelectedArchivos() {
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="Nuevo Archivo" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedArchivos || !selectedArchivos.length" />
                 </template>
 
                 <template #end>
@@ -196,12 +191,12 @@ async function deleteSelectedArchivos() {
                     </div>
                 </template>
 
-                <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="Codigo" header="Código" sortable style="min-width: 12rem"></Column>
                 <Column field="Nombre" header="Nombre" sortable style="min-width: 16rem"></Column>
+                <Column field="resultado.Nombre" header="Resultado" sortable style="min-width: 12rem"></Column>
                 <Column field="Tamaño" header="Tamaño" sortable style="min-width: 12rem"></Column>
                 <Column field="Link" header="Enlace" sortable style="min-width: 16rem"></Column>
-                <Column field="resultado.Nombre" header="Resultado" sortable style="min-width: 12rem"></Column>
+
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editArchivo(slotProps.data)" />

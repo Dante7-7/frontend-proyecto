@@ -130,12 +130,6 @@ async function deleteRelacion() {
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la relación', life: 3000 });
     }
 }
-
-function confirmDeleteSelected() {
-    relaciones.value = relaciones.value.filter((val) => !selectedRelaciones.value.includes(val));
-    selectedRelaciones.value = null;
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Relaciones eliminadas', life: 3000 });
-}
 </script>
 
 <template>
@@ -143,7 +137,6 @@ function confirmDeleteSelected() {
         <Toolbar class="mb-6">
             <template #start>
                 <Button label="Nueva Relación" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNewRelacion" />
-                <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedRelaciones || !selectedRelaciones.length" />
             </template>
 
             <template #end>
@@ -171,7 +164,6 @@ function confirmDeleteSelected() {
                 </div>
             </template>
 
-            <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
             <Column field="Nombre" header="Programa" sortable></Column>
             <Column field="competencia" header="Competencia">
                 <template #body="slotProps">

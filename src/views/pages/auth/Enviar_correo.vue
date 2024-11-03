@@ -42,9 +42,9 @@ function redirectToLogin() {
                     <form @submit.prevent="onSubmit">
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-                            <input type="email" id="email" v-model="email" placeholder="Correo" required class="w-full md:w-[20rem] mb-10" />
-                            <Button type="submit" label="Enviar" class="w-full"></Button>
+                            <InputText id="email" type="text" placeholder="Correo electrónico" class="w-full md:w-[25rem] mb-8" v-model="email" />
                         </div>
+                        <Button type="submit" label="Enviar" class="w-full"></Button>
                     </form>
                     <p class="mt-4 text-center">
                         <a @click="redirectToLogin" class="font-medium ml-2 text-right cursor-pointer text-primary">Volver al inicio de sesión</a>

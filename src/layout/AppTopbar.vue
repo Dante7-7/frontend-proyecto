@@ -1,6 +1,5 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import AppConfigurator from './AppConfigurator.vue';
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
 
@@ -14,19 +13,15 @@ const items = [
         separator: true
     },
     {
-        label: 'logout',
+        label: 'Cerrar Sesion',
         icon: 'pi pi-fw pi-sign-in',
         command: () => {
             localStorage.removeItem('token');
-            toast.add({ severity: 'info', summary: 'Logged out', detail: 'You have been logged out.', life: 3000 });
+            toast.add({ severity: 'info', summary: 'Logged out', detail: 'Se ha cerrado la sesion.', life: 3000 });
             router.push({ name: 'landing' });
         }
     }
 ];
-
-const save = () => {
-    toast.add({ severity: 'success', summary: 'Success', detail: 'Data Saved', life: 3000 });
-};
 </script>
 
 <template>
@@ -75,7 +70,7 @@ const save = () => {
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
                     <Toast />
-                    <SplitButton :model="items" @click="save">
+                    <SplitButton :model="items">
                         <span class="flex items-center font-bold">
                             <i class="pi pi-user" style="font-size: 1.3rem"></i>
                         </span>

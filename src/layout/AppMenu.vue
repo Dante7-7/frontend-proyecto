@@ -8,11 +8,11 @@ const userRole = localStorage.getItem('userRole');
 // Define el menú completo, sin filtro
 const fullMenuModel = [
     {
-        label: 'Home',
-        items: [{ label: 'Home', icon: 'pi pi-fw pi-home', to: '/dashboard', roles: ['Admin', 'Instructor', 'Coordinador'] }]
+        label: 'Hogar',
+        items: [{ label: 'Hogar', icon: 'pi pi-fw pi-home', to: '/dashboard', roles: ['Admin', 'Instructor', 'Coordinador'] }]
     },
     {
-        label: 'Pages',
+        label: 'Paginas',
         icon: 'pi pi-fw pi-briefcase',
         to: '/pages',
         items: [

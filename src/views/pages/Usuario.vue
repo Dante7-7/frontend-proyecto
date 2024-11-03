@@ -128,10 +128,6 @@ function findIndexById(id) {
     return usuarios.value.findIndex((u) => u.id === id);
 }
 
-function confirmDeleteSelected() {
-    deleteUsuariosDialog.value = true;
-}
-
 async function deleteSelectedUsuarios() {
     usuarios.value = usuarios.value.filter((val) => !selectedUsuarios.value.includes(val));
     deleteUsuariosDialog.value = false;
@@ -139,7 +135,7 @@ async function deleteSelectedUsuarios() {
     toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuarios eliminados', life: 3000 });
 }
 function validatePassword(password) {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\-.,¿¡])[A-Za-z\d@$!%*?&\-.,¿¡]{8,}$/;
     return regex.test(password);
 }
 
@@ -173,7 +169,6 @@ async function saveCompetencias() {
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="Nuevo Usuario" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedUsuarios || !selectedUsuarios.length" />
                 </template>
             </Toolbar>
 
@@ -196,14 +191,13 @@ async function saveCompetencias() {
                     </div>
                 </template>
 
-                <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="name" header="Nombre" sortable style="min-width: 12rem"></Column>
                 <Column field="role.rol_name" header="Rol" sortable style="min-width: 12rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUsuario(slotProps.data)" />
                         <Button icon="pi pi-plus" outlined rounded class="mr-2" @click="openAssignCompetencias(slotProps.data)" label="Asignar Competencias" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteUsuario(slotProps.data)" />
+                        <Button icon="pi pi-trash" outlined rounded class="mr-2" severity="danger" @click="confirmDeleteUsuario(slotProps.data)" />
                         <Dropdown :options="slotProps.data.competencias" option-label="Nombre" placeholder="Ver Competencias" style="cursor: default" showClear="false" />
                     </template>
                 </Column>

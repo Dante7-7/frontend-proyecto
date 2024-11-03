@@ -106,10 +106,6 @@ function exportCSV() {
     dt.value.exportCSV();
 }
 
-function confirmDeleteSelected() {
-    deleteProgramasDialog.value = true;
-}
-
 async function deleteSelectedProgramas() {
     try {
         const deletePromises = selectedProgramas.value.map((programa) => ProgramaService.deletePrograma(programa.id));
@@ -131,7 +127,6 @@ async function deleteSelectedProgramas() {
             <Toolbar class="mb-6">
                 <template #start>
                     <Button label="Nuevo Programa" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedProgramas || !selectedProgramas.length" />
                 </template>
 
                 <template #end>
@@ -158,7 +153,6 @@ async function deleteSelectedProgramas() {
                     </div>
                 </template>
 
-                <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="Codigo" header="Código" sortable style="min-width: 12rem"></Column>
                 <Column field="Nombre" header="Nombre" sortable style="min-width: 16rem"></Column>
                 <Column field="Descripcion" header="Descripción" sortable style="min-width: 20rem"></Column>
