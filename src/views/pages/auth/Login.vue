@@ -63,26 +63,28 @@ const onSubmit = async () => {
                                 />
                             </g>
                         </svg>
-                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to PrimeLand!</div>
-                        <span class="text-muted-color font-medium">Sign in to continue</span>
+                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bienvenidos a SUGAS!</div>
+                        <span class="text-muted-color font-medium">Inicie sesion para continuar</span>
                     </div>
                     <form @submit.prevent="onSubmit">
                         <div>
-                            <label for="email" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                            <InputText id="email" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" v-model="email" />
+                            <label for="email" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Correo Electrónico</label>
+                            <InputText id="email" type="text" placeholder="Correo electrónico" class="w-full md:w-[30rem] mb-8" v-model="email" />
                             <small v-if="submitted && !email" class="text-red-500 block">El Email es obligatorio.</small>
 
-                            <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                            <Password id="password" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
+                            <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Contraseña</label>
+                            <Password id="password" v-model="password" placeholder="Contraseña" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
                             <small v-if="submitted && !password" class="text-red-500">la constraseña es obligatoria.</small>
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">
                                     <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                     <label for="rememberme1">Remember me</label>
                                 </div>
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
+                                <router-link to="/auth/Enviar_correo" class="no-underline">
+                                    <span class="font-medium ml-2 text-right cursor-pointer text-primary">¿Olvidó su contraseña?</span>
+                                </router-link>
                             </div>
-                            <Button type="submit" label="Sign In" class="w-full"></Button>
+                            <Button type="submit" label="Iniciar Sesion" class="w-full"></Button>
                         </div>
                     </form>
                 </div>

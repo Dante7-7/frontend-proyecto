@@ -3,8 +3,7 @@ import 'primeicons/primeicons.css';
 import { computed } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
 
-// Supongamos que el rol está almacenado en localStorage
-const userRole = localStorage.getItem('userRole') || 'instructor'; // El rol por defecto es 'instructor'
+const userRole = localStorage.getItem('userRole');
 
 // Define el menú completo, sin filtro
 const fullMenuModel = [

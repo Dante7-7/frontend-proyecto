@@ -59,5 +59,17 @@ export default {
         );
         console.log('add:', response.data);
         return response;
+    },
+
+    async recuperar_clave(email) {
+        console.log('el correo', email);
+        const reponse = await api.post('auth/restablecer-clave', { email: email });
+        return reponse;
+    },
+
+    async guardar_nuevaclave(token, newPassword) {
+        console.log('si llego', token, 'newpass', newPassword);
+        const response = await api.post('auth/actualizar-clave', { token: token, newPassword: newPassword });
+        return response.data;
     }
 };

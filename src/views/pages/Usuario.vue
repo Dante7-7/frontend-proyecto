@@ -138,7 +138,6 @@ async function deleteSelectedUsuarios() {
     selectedUsuarios.value = null;
     toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuarios eliminados', life: 3000 });
 }
-// Validación de contraseña
 function validatePassword(password) {
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return regex.test(password);

@@ -74,10 +74,9 @@ const router = createRouter({
             ]
         },
         {
-            // Ruta para página no encontrada
-            path: '/pages/notfound',
-            name: 'notfound',
-            component: () => import('@/views/pages/NotFound.vue')
+            path: '/auth/restablecer_clave',
+            name: 'RestablecerClave',
+            component: () => import('@/views/pages/auth/Restablecer_Clave.vue')
         },
         {
             path: '/auth/access',
@@ -88,6 +87,11 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/auth/Enviar_correo',
+            name: 'EnviarCorreo',
+            component: () => import('@/views/pages/auth/enviar_Correo.vue')
         }
     ]
 });
