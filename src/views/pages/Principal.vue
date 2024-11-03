@@ -52,22 +52,19 @@ const images = [
 
                 <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
                     <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 ml-auto">
-                        <Button label="Login" as="router-link" to="/auth/login" rounded></Button>
+                        <Button label="Iniciar sesion" as="router-link" to="/auth/login" rounded></Button>
                     </div>
                 </div>
             </div>
-
             <div
                 id="hero"
                 class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden"
                 style="background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, rgb(238, 239, 175) 0%, rgb(195, 227, 250) 100%); clip-path: ellipse(150% 87% at 93% 13%)"
             >
-                <FloatingConfigurator />
-
-                <div class="flex justify-center md:justify-end">
-                    <Carousel :value="images" :numVisible="1" :numScroll="1" :circular="true" :autoplayInterval="3000" class="w-9/12 md:w-auto">
+                <div class="carousel-container">
+                    <Carousel :value="images" :numVisible="1" :numScroll="1" :circular="true" :autoplayInterval="3000" class="carousel">
                         <template #item="slotProps">
-                            <img :src="slotProps.data.src" :alt="slotProps.data.alt" class="w-full h-auto" />
+                            <img :src="slotProps.data.src" :alt="slotProps.data.alt" class="carousel-image" />
                         </template>
                     </Carousel>
                 </div>
@@ -75,3 +72,23 @@ const images = [
         </div>
     </div>
 </template>
+
+<style scoped>
+.carousel-container {
+    margin-left: 90px;
+    margin-top: 200px;
+    width: 100vw; /* 80% del ancho de la pantalla */
+    height: 50vh; /* 60% de la altura de la pantalla */
+    max-width: 1000px; /* Ancho máximo de 1000px */
+    max-height: 600px; /* Altura máxima de 600px */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-image {
+    width: 100%; /* La imagen ocupa todo el ancho del contenedor */
+    height: 100%; /* La imagen ocupa toda la altura del contenedor */
+    object-fit: cover; /* Ajusta la imagen para cubrir el área sin distorsionarse */
+}
+</style>

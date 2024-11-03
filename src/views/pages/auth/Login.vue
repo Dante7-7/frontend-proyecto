@@ -37,6 +37,10 @@ const onSubmit = async () => {
         toast.add({ severity: 'error', summary: 'Error de inicio de sesión', detail: 'Credenciales incorrectas, por favor verifique', life: 3000 });
     }
 };
+
+function redirectTo() {
+    router.push('/auth/Enviar_correo');
+}
 </script>
 
 <template>
@@ -72,17 +76,17 @@ const onSubmit = async () => {
                             <InputText id="email" type="text" placeholder="Correo electrónico" class="w-full md:w-[30rem] mb-8" v-model="email" />
                             <small v-if="submitted && !email" class="text-red-500 block">El Email es obligatorio.</small>
 
-                            <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Contraseña</label>
-                            <Password id="password" v-model="password" placeholder="Contraseña" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
+                            <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                            <Password id="password" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
                             <small v-if="submitted && !password" class="text-red-500">la constraseña es obligatoria.</small>
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">
                                     <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
-                                    <label for="rememberme1">Remember me</label>
+                                    <label for="rememberme1">Recuérdame</label>
                                 </div>
-                                <router-link to="/auth/Enviar_correo" class="no-underline">
-                                    <span class="font-medium ml-2 text-right cursor-pointer text-primary">¿Olvidó su contraseña?</span>
-                                </router-link>
+                                <p class="mt-4 text-center">
+                                    <a @click="redirectTo" class="font-medium ml-2 text-right cursor-pointer text-primary">¿Olvidó su contraseña?</a>
+                                </p>
                             </div>
                             <Button type="submit" label="Iniciar Sesion" class="w-full"></Button>
                         </div>
