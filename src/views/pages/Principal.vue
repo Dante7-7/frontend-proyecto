@@ -57,7 +57,7 @@ const images = [
 
                 <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
                     <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2 ml-auto">
-                        <Button label="Login" as="router-link" to="/auth/login" rounded></Button>
+                        <Button label="Iniciar sesion" as="router-link" to="/auth/login" rounded></Button>
                     </div>
                 </div>
             </div>
