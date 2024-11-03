@@ -72,7 +72,7 @@ const descargarArchivo = async (url, nombre) => {
         </template>
         <Card v-for="(archivo, index) in filteredArchivos" :key="index" style="width: 25rem; overflow: hidden; margin-right: 1rem">
             <template #header>
-                <img alt="user header" src="https://primefaces.org/cdn/primevue/images/usercard.png" />
+                <img alt="user header" src="https://www.consumoteca.com/wp-content/uploads/PDF-icon-jpg.webp" />
             </template>
             <template #title>{{ archivo.Nombre }}</template>
             <template #subtitle>Tamaño: {{ archivo.Tamaño }} KB</template>
