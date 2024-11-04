@@ -19,7 +19,15 @@ function validatePassword(password) {
 }
 async function submitNewPassword() {
     submitted.value = true;
-
+    if (!validatePassword(newPassword.value)) {
+        toast.add({
+            severity: 'warn',
+            summary: 'Advertencia',
+            detail: 'La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial.',
+            life: 3000
+        });
+        return;
+    }
     if (newPassword.value !== confirmNewPassword.value) {
         toast.add({
             severity: 'error',
@@ -37,6 +45,11 @@ async function submitNewPassword() {
             detail: response.message,
             life: 3000
         });
+        if (response.message === 'Contraseña actualizada') {
+            setTimeout(() => {
+                router.push('/auth/login');
+            }, 3000);
+        }
     } catch (error) {
         console.error(error);
         const errorMessage = error.response?.message;
@@ -84,7 +97,6 @@ function redirectTo() {
                                 <div>
                                     <label for="newPassword">Nueva Contraseña</label>
                                     <Password id="password" v-model="newPassword" placeholder="Contraseña" :toggleMask="true" class="w-full md:w-[30rem] mb-8" fluid :feedback="false"></Password>
-                                    <small v-if="submitted && !validatePassword(newPassword)" class="text-red-500">La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial.</small>
                                 </div>
                                 <div>
                                     <label for="ConfirmNewPassword">Confirmar Contraseña</label>

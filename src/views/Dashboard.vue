@@ -21,12 +21,7 @@ onMounted(async () => {
 });
 
 const filteredArchivos = computed(() => {
-    // Agregar esta línea
-    return archivos.value.filter(
-        (
-            archivo // Agregar esta línea
-        ) => archivo.Nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) // Agregar esta línea
-    );
+    return archivos.value.filter((archivo) => archivo.Nombre.toLowerCase().includes(searchQuery.value.toLowerCase()));
 });
 // Función para ver el archivo (redirigir al enlace del archivo)
 const verArchivo = (url) => {
@@ -35,14 +30,13 @@ const verArchivo = (url) => {
 
 // Función para descargar el archivo
 const descargarArchivo = async (url, nombre) => {
-    console.log('Iniciando descarga:', url); // Debugging
-    isLoading.value = true; // Iniciar carga
+    console.log('Iniciando descarga:', url);
+    isLoading.value = true;
 
     const link = document.createElement('a');
     link.href = url;
     link.download = nombre;
 
-    // Verificar si el enlace es accesible
     fetch(url)
         .then((response) => {
             if (response.ok) {
