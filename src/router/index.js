@@ -45,7 +45,7 @@ const router = createRouter({
                     path: '/pages/usuarios',
                     name: 'usuarios',
                     component: () => import('@/views/pages/Usuario.vue'),
-                    meta: { requiresAuth: true, roles: ['Admin'] }
+                    meta: { requiresAuth: true, roles: ['Admin', 'Coordinador'] }
                 },
                 {
                     path: '/pages/competencia',
@@ -91,7 +91,7 @@ const router = createRouter({
         {
             path: '/auth/Enviar_correo',
             name: 'EnviarCorreo',
-            component: () => import('@/views/pages/auth/enviar_Correo.vue')
+            component: () => import('@/views/pages/auth/Enviar_correo.vue')
         }
     ]
 });

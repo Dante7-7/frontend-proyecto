@@ -6,8 +6,18 @@ const api = axios.create({
 const token = localStorage.getItem('token');
 
 export default {
-    async getUsuarios() {
-        const response = await api.get('/usuarios');
+    async getUsuarios(params) {
+        const query = new URLSearchParams();
+
+        if (params.programaNombre) {
+            query.append('programaNombre', params.programaNombre);
+        }
+        const response = await api.get(`/usuarios?${query.toString()}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        console.log('getusuarios', response);
         return response.data;
     },
     async createUsuario(data) {
@@ -36,7 +46,12 @@ export default {
         });
     },
     async getRoles() {
-        const response = await api.get('/roles');
+        const response = await api.get('/roles', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        console.log('roles', response.data);
         return response.data;
     },
     async Login(data) {

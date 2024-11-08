@@ -17,8 +17,11 @@ const items = [
         icon: 'pi pi-fw pi-sign-in',
         command: () => {
             localStorage.removeItem('token');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('usuarioId');
+            console.log(localStorage);
             toast.add({ severity: 'info', summary: 'Logged out', detail: 'Se ha cerrado la sesion.', life: 3000 });
-            router.push({ name: 'landing' });
+            router.push({ name: 'landing' }).then(() => {});
         }
     }
 ];

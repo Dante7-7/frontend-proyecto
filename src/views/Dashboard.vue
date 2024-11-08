@@ -14,14 +14,17 @@ onMounted(async () => {
     try {
         const data = await ArchivoService.getArchivos(usuarioId);
         archivos.value = data;
-        console.log(archivos);
+        console.log('lo que llega al front', data);
     } catch (error) {
         console.error('Error al obtener archivos:', error);
     }
 });
 
 const filteredArchivos = computed(() => {
-    return archivos.value.filter((archivo) => archivo.Nombre.toLowerCase().includes(searchQuery.value.toLowerCase()));
+    const query = searchQuery.value.toLocaleLowerCase();
+    return archivos.value.filter((archivoData) => {
+        return archivoData.archivo.Nombre.toLocaleLowerCase().includes(query) || archivoData.resultado.Nombre.toLocaleLowerCase().includes(query);
+    });
 });
 // Función para ver el archivo (redirigir al enlace del archivo)
 const verArchivo = (url) => {
@@ -64,14 +67,14 @@ const descargarArchivo = async (url, nombre) => {
         <template v-if="filteredArchivos.length === 0">
             <p>No hay guías creadas o asignadas.</p>
         </template>
-        <Card v-for="(archivo, index) in filteredArchivos" :key="index" style="width: 25rem; overflow: hidden; margin-right: 1rem">
+        <Card v-for="(archivoData, index) in filteredArchivos" :key="index" style="width: 25rem; overflow: hidden; margin-right: 1rem">
             <template #header>
                 <img alt="user header" src="https://www.consumoteca.com/wp-content/uploads/PDF-icon-jpg.webp" />
             </template>
-            <template #title>{{ archivo.Nombre }}</template>
-            <template #subtitle>Tamaño: {{ archivo.Tamaño }} KB</template>
+            <template #title>{{ archivoData.archivo.Nombre }}</template>
+            <template #subtitle>Tamaño: {{ archivoData.archivo.Tamaño }} KB</template>
             <template #content>
-                <p class="m-0"></p>
+                <p class="m-0">Resultado de aprendizaje {{ archivoData.resultado.Nombre }}</p>
             </template>
             <template #footer>
                 <div class="flex gap-4 mt-1">

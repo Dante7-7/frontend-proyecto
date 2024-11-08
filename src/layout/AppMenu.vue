@@ -20,7 +20,7 @@ const fullMenuModel = [
                 label: 'usuarios',
                 icon: 'pi pi-id-card',
                 to: '/pages/usuarios',
-                roles: ['Admin']
+                roles: ['Admin', 'Coordinador']
             },
             {
                 label: 'Programa',

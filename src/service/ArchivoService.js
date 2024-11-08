@@ -16,7 +16,8 @@ export default {
     async getArchivos(usuarioId) {
         console.log('id:', usuarioId);
         const response = await api.get(`/archivos/usuario/${usuarioId}`);
-        return response.data;
+        console.log('lo nuevo :', response.data);
+        return response.data.archivos;
     },
 
     uploadArchivo(formData) {

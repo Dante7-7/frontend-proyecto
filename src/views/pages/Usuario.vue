@@ -3,7 +3,7 @@ import RelacionPCService from '@/service/RelacionPCService';
 import UsuarioService from '@/service/UsuarioService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const toast = useToast();
 const dt = ref();
@@ -20,15 +20,27 @@ const competenciasDialog = ref(false);
 const competenciasDisponibles = ref([]);
 const competenciasSeleccionadas = ref([]);
 const usuarioSeleccionado = ref(null);
+const programaNombre = ref('');
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const submitted = ref(false);
-
+watch(programaNombre, async (newVal) => {
+    try {
+        const params = newVal ? { programaNombre: newVal } : {};
+        console.log('Fetching usuarios with params:', params);
+        const response = await UsuarioService.getUsuarios(params);
+        usuarios.value = response;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al obtener usuarios', life: 3000 });
+    }
+});
 onMounted(async () => {
     try {
-        const response = await UsuarioService.getUsuarios();
-        console.log(usuarios);
+        const params = programaNombre.value ? { programaNombre: programaNombre.value } : {};
+        console.log('params', params);
+        const response = await UsuarioService.getUsuarios(params);
+        console.log('usuarios', usuarios, 'programa', programaNombre.value);
         usuarios.value = response;
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Error al obtener usuarios', life: 3000 });
@@ -48,7 +60,6 @@ onMounted(async () => {
     }
 });
 
-// Funciones para el manejo de usuarios
 function openNew() {
     rolSeleccionado.value = null;
     isNewUser.value = true;
@@ -188,6 +199,10 @@ async function saveCompetencias() {
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0">Administrar Usuarios</h4>
                         <InputText v-model="filters['global'].value" placeholder="Buscar..." />
+                        <form action="" method="get">
+                            <InputText v-model="programaNombre" placeholder="Buscar por programa..." />
+                            <div>{{ programaNombre }}</div>
+                        </form>
                     </div>
                 </template>
 
@@ -253,7 +268,7 @@ async function saveCompetencias() {
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
                 <span v-if="usuario"
-                    >¿Seguro que deseas eliminar <b>{{ usuario.nombre }}</b
+                    >¿Seguro que deseas eliminar <b>{{ usuario.name }}</b
                     >?</span
                 >
             </div>
