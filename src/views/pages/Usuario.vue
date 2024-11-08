@@ -2,6 +2,7 @@
 import RelacionPCService from '@/service/RelacionPCService';
 import UsuarioService from '@/service/UsuarioService';
 import { FilterMatchMode } from '@primevue/core/api';
+import Select from 'primevue/select';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref, watch } from 'vue';
 
@@ -213,7 +214,7 @@ async function saveCompetencias() {
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUsuario(slotProps.data)" />
                         <Button icon="pi pi-plus" outlined rounded class="mr-2" @click="openAssignCompetencias(slotProps.data)" label="Asignar Competencias" />
                         <Button icon="pi pi-trash" outlined rounded class="mr-2" severity="danger" @click="confirmDeleteUsuario(slotProps.data)" />
-                        <Dropdown :options="slotProps.data.competencias" option-label="Nombre" placeholder="Ver Competencias" style="cursor: default" showClear="false" />
+                        <Select :options="slotProps.data.competencias" option-label="Nombre" placeholder="Ver Competencias" style="cursor: default" :showClear="false" />
                     </template>
                 </Column>
             </DataTable>

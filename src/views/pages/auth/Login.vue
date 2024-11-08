@@ -22,11 +22,11 @@ const onSubmit = async () => {
         const data = { email: email.value, password: password.value };
         console.log('login', data);
         const access_token = await UsuarioService.Login(data);
-        console.log('clave token: ', access_token.access_token, 'rol:', access_token.role);
 
         // Guardar el token y otros datos en localStorage
+        console.log('token que se guarda:', access_token.access_token);
         localStorage.setItem('token', access_token.access_token);
-        localStorage.setItem('userRole', access_token.role.rol_name); // Guardar rol
+        localStorage.setItem('userRole', access_token.role.rol_name);
         localStorage.setItem('usuarioId', access_token.id);
 
         toast.add({ severity: 'success', summary: 'Login exitoso', detail: 'Has iniciado sesión correctamente', life: 3000 });

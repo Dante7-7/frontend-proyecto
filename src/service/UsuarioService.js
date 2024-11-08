@@ -3,15 +3,16 @@ import axios from 'axios';
 const api = axios.create({
     baseURL: 'http://localhost:3000/'
 });
-const token = localStorage.getItem('token');
 
 export default {
-    async getUsuarios(params) {
+    async getUsuarios(params = {}) {
         const query = new URLSearchParams();
 
         if (params.programaNombre) {
             query.append('programaNombre', params.programaNombre);
         }
+        query.append('_', new Date().getTime());
+        const token = localStorage.getItem('token');
         const response = await api.get(`/usuarios?${query.toString()}`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -22,6 +23,7 @@ export default {
     },
     async createUsuario(data) {
         console.log('data:', data);
+        const token = localStorage.getItem('token');
         return await api.post('/auth/register', data, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -31,6 +33,7 @@ export default {
     async updateUsuario(id, data) {
         console.log('data:', data, 'id:', id);
         console.log(data);
+        const token = localStorage.getItem('token');
         return await api.patch(`/usuarios/${id}`, data, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -39,6 +42,7 @@ export default {
     },
     async deleteUsuario(id) {
         console.log('id usuario:', id);
+        const token = localStorage.getItem('token');
         return await api.delete(`/usuarios/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -46,6 +50,7 @@ export default {
         });
     },
     async getRoles() {
+        const token = localStorage.getItem('token');
         const response = await api.get('/roles', {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -63,6 +68,7 @@ export default {
 
     async agregarCompetenciasAUsuario(id, data) {
         console.log('id', id, 'competencias:', data);
+        const token = localStorage.getItem('token');
         const response = await api.post(
             `usuarios/${id}/competencias`,
             { competenciasIds: data },
