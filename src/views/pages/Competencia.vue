@@ -111,6 +111,13 @@ async function deleteSelectedCompetencias() {
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron eliminar las competencias', life: 3000 });
     }
 }
+
+import Dropdown from 'primevue/dropdown';
+
+const tipoOptions = [
+    { label: 'Trasversal', value: 'Trasversal' },
+    { label: 'Tecnica', value: 'Tecnica' }
+];
 </script>
 
 <template>
@@ -173,8 +180,9 @@ async function deleteSelectedCompetencias() {
                 </div>
 
                 <div>
+                    <!--opcion para el tipo-->
                     <label for="Tipo" class="block font-bold mb-3">Tipo</label>
-                    <InputText id="Tipo" v-model="competencia.Tipo" required="true" placeholder="Tipo" />
+                    <Dropdown id="Tipo" v-model="competencia.Tipo" :options="tipoOptions" optionLabel="label" optionValue="value" placeholder="Selecciona un tipo" required />
                 </div>
 
                 <div>
