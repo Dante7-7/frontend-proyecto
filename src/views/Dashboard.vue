@@ -6,12 +6,12 @@ import { computed, onMounted, ref } from 'vue';
 
 const archivos = ref([]);
 const isLoading = ref(false);
-const usuarioId = localStorage.getItem('usuarioId');
 const searchQuery = ref('');
-console.log('usuario id', usuarioId);
 
 onMounted(async () => {
     try {
+        const usuarioId = localStorage.getItem('usuarioId');
+        console.log('usuario id', usuarioId);
         const data = await ArchivoService.getArchivos(usuarioId);
         archivos.value = data;
         console.log('lo que llega al front', data);
@@ -78,8 +78,8 @@ const descargarArchivo = async (url, nombre) => {
             </template>
             <template #footer>
                 <div class="flex gap-4 mt-1">
-                    <Button label="Ver" class="w-full" @click="verArchivo(archivo.Link)" />
-                    <Button label="Descargar" class="w-full" @click="descargarArchivo(archivo.Link, archivo.Nombre)" />
+                    <Button label="Ver" class="w-full" @click="verArchivo(archivoData.archivo.Link)" />
+                    <Button label="Descargar" class="w-full" @click="descargarArchivo(archivoData.archivo.Link, archivoData.archivo.Nombre)" />
                 </div>
             </template>
         </Card>
