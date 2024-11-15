@@ -1,12 +1,6 @@
 <script setup>
 import RelacionPCService from '@/service/RelacionPCService';
 import { FilterMatchMode } from '@primevue/core/api';
-import Button from 'primevue/button';
-import Column from 'primevue/column';
-import DataTable from 'primevue/datatable';
-import Dialog from 'primevue/dialog';
-import InputText from 'primevue/inputtext';
-import Toolbar from 'primevue/toolbar';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
@@ -23,6 +17,10 @@ const deleteRelacionDialog = ref(false);
 const submitted = ref(false);
 const selectedRelaciones = ref([]);
 const relacionAEliminar = ref(null);
+const competenciaSeleccionadaEliminar = ref(null);
+const competenciasRelacionadas = ref([]);
+const deleteRelacionEspecificaDialog = ref(false);
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -93,8 +91,14 @@ async function saveRelacion() {
 
 function confirmDeleteRelacion(relacion) {
     deleteRelacionDialog.value = true;
-    relacionAEliminar.value = relacion; // Guardar la relación completa
+    relacionAEliminar.value = relacion;
     console.log('Relación a eliminar:', relacion);
+}
+function confirmDeleteRelacionEspecifica(relacion) {
+    deleteRelacionEspecificaDialog.value = true;
+    relacionAEliminar.value = relacion;
+    competenciasRelacionadas.value = relacion.competencias || [];
+    competenciaSeleccionadaEliminar.value = null; // Reinicia la selección
 }
 
 // Función para eliminar una relación específica
@@ -115,7 +119,6 @@ async function deleteRelacion() {
     console.log(relacion);
 
     try {
-        // Asegúrate de que el servicio esté manejando correctamente la eliminación
         await RelacionPCService.delete(relacion);
 
         // Filtra la relación eliminada del array
@@ -128,6 +131,28 @@ async function deleteRelacion() {
     } catch (error) {
         console.error('Error al eliminar la relación:', error);
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la relación', life: 3000 });
+    }
+}
+
+async function deleteRelacionEspecifica() {
+    if (!relacionAEliminar.value || !competenciaSeleccionadaEliminar.value) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Debe seleccionar una competencia para eliminar', life: 3000 });
+        return;
+    }
+
+    const { ID: programaId } = relacionAEliminar.value;
+    const { ID: competenciaId } = competenciaSeleccionadaEliminar.value;
+
+    try {
+        await RelacionPCService.deleteRelacionEspecifica({ programaId, competenciaId });
+        await refreshArchivos();
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Competencia eliminada de la relación', life: 3000 });
+        deleteRelacionEspecificaDialog.value = false;
+        relacionAEliminar.value = null;
+        competenciaSeleccionadaEliminar.value = null;
+    } catch (error) {
+        console.error('Error al eliminar la relación:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la competencia', life: 3000 });
     }
 }
 </script>
@@ -176,7 +201,8 @@ async function deleteRelacion() {
             </Column>
             <Column :exportable="false" style="min-width: 12rem">
                 <template #body="slotProps">
-                    <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteRelacion(slotProps.data)" />
+                    <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2" @click="confirmDeleteRelacion(slotProps.data)" />
+                    <Button icon="pi pi-pencil" outlined rounded @click="confirmDeleteRelacionEspecifica(slotProps.data)" />
                 </template>
             </Column>
         </DataTable>
@@ -185,7 +211,7 @@ async function deleteRelacion() {
         <Dialog v-model:visible="deleteRelacionDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span>¿Seguro que deseas eliminar ?</span>
+                <span>¿Seguro que deseas eliminar TODAS las relaciones?</span>
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" text @click="deleteRelacionDialog = false" />
@@ -193,6 +219,25 @@ async function deleteRelacion() {
             </template>
         </Dialog>
 
+        <!--dialog para editar relaciones-->
+        <Dialog v-model:visible="deleteRelacionEspecificaDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label for="competenciasEliminar" class="block font-bold mb-3">Competencias Relacionadas</label>
+                    <Dropdown id="competenciasEliminar" v-model="competenciaSeleccionadaEliminar" :options="competenciasRelacionadas" optionLabel="Nombre" placeholder="Seleccione una competencia" style="width: 100%" />
+                </div>
+                <div class="flex items-center gap-4">
+                    <i class="pi pi-exclamation-triangle !text-3xl" />
+                    <span>¿Seguro que deseas eliminar la relación seleccionada?</span>
+                </div>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" text @click="deleteRelacionEspecificaDialog = false" />
+                <Button label="Sí" icon="pi pi-check" severity="danger" @click="deleteRelacionEspecifica" />
+            </template>
+        </Dialog>
+
+        <!--dialog para crear relaciones-->
         <Dialog v-model:visible="relacionDialog" :style="{ width: '600px' }" header="Detalles de la Relación" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>

@@ -44,5 +44,17 @@ export default {
                 }
             }
         );
+    },
+    async deleteRelacionEspecifica(relacion) {
+        console.log('relacion', relacion);
+        return await api.delete(
+            '/programa/relacion-especifica',
+            { data: relacion },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
     }
 };
