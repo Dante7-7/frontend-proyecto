@@ -82,6 +82,17 @@ export default {
         return response;
     },
 
+    async eliminarCompetencia(id, competenciaID) {
+        console.log(competenciaID, 'usuairoid', id);
+        const token = localStorage.getItem('token');
+        const reponse = await api.delete(`usuarios/${id}/competencias/${competenciaID}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return reponse;
+    },
+
     async recuperar_clave(email) {
         console.log('el correo', email);
         const reponse = await api.post('auth/restablecer-clave', { email: email });

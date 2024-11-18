@@ -22,6 +22,8 @@ const competenciasDisponibles = ref([]);
 const competenciasSeleccionadas = ref([]);
 const usuarioSeleccionado = ref(null);
 const programaNombre = ref('');
+const competenciaSeleccionada = ref(null);
+const deleteCompetenciaDialog = ref(false);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -173,8 +175,38 @@ async function saveCompetencias() {
         toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron asignar las competencias', life: 3000 });
     }
 }
-</script>
+function onSelectCompetencia(event, usuario) {
+    // Obtenemos la competencia seleccionada
+    console.log(event, usuario);
+    usuarioSeleccionado.value = usuario.id;
+    competenciaSeleccionada.value = event.value;
+    deleteCompetenciaDialog.value = true; // Mostramos el diálogo de confirmación
+}
 
+async function deleteCompetencia() {
+    try {
+        // Realizar la solicitud para eliminar la competencia
+        await UsuarioService.eliminarCompetencia(usuarioSeleccionado.value, competenciaSeleccionada.value.ID);
+        toast.add({
+            severity: 'success',
+            summary: 'Competencia eliminada',
+            detail: `La competencia ${competenciaSeleccionada.value.Nombre} ha sido eliminada.`,
+            life: 3000
+        });
+        await refresh();
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar la competencia.',
+            life: 3000
+        });
+    } finally {
+        deleteCompetenciaDialog.value = false;
+        competenciaSeleccionada.value = null;
+    }
+}
+</script>
 <template>
     <div>
         <div class="card">
@@ -202,7 +234,6 @@ async function saveCompetencias() {
                         <InputText v-model="filters['global'].value" placeholder="Buscar..." />
                         <form action="" method="get">
                             <InputText v-model="programaNombre" placeholder="Buscar por programa..." />
-                            <div>{{ programaNombre }}</div>
                         </form>
                     </div>
                 </template>
@@ -214,12 +245,25 @@ async function saveCompetencias() {
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editUsuario(slotProps.data)" />
                         <Button icon="pi pi-plus" outlined rounded class="mr-2" @click="openAssignCompetencias(slotProps.data)" label="Asignar Competencias" />
                         <Button icon="pi pi-trash" outlined rounded class="mr-2" severity="danger" @click="confirmDeleteUsuario(slotProps.data)" />
-                        <Select :options="slotProps.data.competencias" option-label="Nombre" placeholder="Ver Competencias" style="cursor: default" :showClear="false" />
+                        <Select :options="slotProps.data.competencias" option-label="Nombre" placeholder="Ver Competencias" style="cursor: pointer" :showClear="false" @change="onSelectCompetencia($event, slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
         </div>
-
+        <!-- Confirmar eliminación de competencia -->
+        <Dialog v-model:visible="deleteCompetenciaDialog" :style="{ width: '350px' }" header="Confirmar Eliminación" :modal="true">
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle !text-3xl" />
+                <span
+                    >¿Seguro que deseas eliminar la competencia <b>{{ competenciaSeleccionada?.Nombre }}</b
+                    >?</span
+                >
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" text @click="deleteCompetenciaDialog = false" />
+                <Button label="Sí" icon="pi pi-check" @click="deleteCompetencia" />
+            </template>
+        </Dialog>
         <!-- Dialog para agregar/editar usuario -->
         <Dialog v-model:visible="usuarioDialog" :style="{ width: '450px' }" header="Detalles del Usuario" :modal="true">
             <div class="flex flex-col gap-6">
@@ -269,7 +313,7 @@ async function saveCompetencias() {
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
                 <span v-if="usuario"
-                    >¿Seguro que deseas eliminar <b>{{ usuario.name }}</b
+                    >¿Seguro que deseas eliminar este usuario: <b>{{ usuario.name }}</b
                     >?</span
                 >
             </div>
