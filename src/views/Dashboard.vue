@@ -36,26 +36,33 @@ const descargarArchivo = async (url, nombre) => {
     console.log('Iniciando descarga:', url);
     isLoading.value = true;
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = nombre;
+    try {
+        // Solicita el archivo como blob
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Error al acceder a la URL: ${response.statusText}`);
+        }
 
-    fetch(url)
-        .then((response) => {
-            if (response.ok) {
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                console.error('Error al acceder a la URL:', response.statusText);
-            }
-        })
-        .catch((error) => {
-            console.error('Error al descargar el archivo:', error);
-        });
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera de 1 segundo
-    isLoading.value = false;
+        // Crea el enlace de descarga
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = nombre || 'archivo_descargado';
+        document.body.appendChild(link);
+
+        // Inicia la descarga
+        link.click();
+
+        // Limpieza
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl); // Libera la URL creada
+    } catch (error) {
+        console.error('Error al descargar el archivo:', error);
+    } finally {
+        isLoading.value = false; // Asegura que el estado de carga se actualice
+    }
 };
 </script>
 
