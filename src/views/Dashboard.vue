@@ -21,11 +21,13 @@ onMounted(async () => {
 });
 
 const filteredArchivos = computed(() => {
-    const query = searchQuery.value.toLocaleLowerCase();
+    const query = searchQuery.value?.toLocaleLowerCase() || '';
     return archivos.value.filter((archivoData) => {
-        return archivoData.archivo.Nombre.toLocaleLowerCase().includes(query) || archivoData.resultado.Nombre.toLocaleLowerCase().includes(query);
+        console.log('Procesando:', archivoData);
+        return archivoData?.archivo?.Nombre?.toLocaleLowerCase()?.includes(query) || archivoData?.resultado?.Nombre?.toLocaleLowerCase()?.includes(query) || archivoData?.programa?.Nombre?.toLocaleLowerCase()?.includes(query);
     });
 });
+
 // Función para ver el archivo (redirigir al enlace del archivo)
 const verArchivo = (url) => {
     window.open(url, '_blank');
@@ -81,7 +83,8 @@ const descargarArchivo = async (url, nombre) => {
             <template #title>{{ archivoData.archivo.Nombre }}</template>
             <template #subtitle>Tamaño: {{ archivoData.archivo.Tamaño }} KB</template>
             <template #content>
-                <p class="m-0">Resultado de aprendizaje {{ archivoData.resultado.Nombre }}</p>
+                <p class="m-0">Programa: {{ archivoData.programa.Nombre }}</p>
+                <p class="m-0">Resultado de aprendizaje: {{ archivoData.resultado.Nombre }}</p>
             </template>
             <template #footer>
                 <div class="flex gap-4 mt-1">

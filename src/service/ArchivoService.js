@@ -16,7 +16,7 @@ export default {
     async getArchivos(usuarioId) {
         console.log('id:', usuarioId);
         const response = await api.get(`/archivos/usuario/${usuarioId}`);
-        console.log('lo nuevo :', response.data);
+        console.log('archivos filtrados :', response.data);
         return response.data.archivos;
     },
 
