@@ -32,11 +32,11 @@ export default {
     },
     async updateUsuario(id, data) {
         console.log('data:', data, 'id:', id);
-        console.log(data);
         const token = localStorage.getItem('token');
         return await api.patch(`/usuarios/${id}`, data, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         });
     },

@@ -24,7 +24,11 @@ const filteredArchivos = computed(() => {
     const query = searchQuery.value?.toLocaleLowerCase() || '';
     return archivos.value.filter((archivoData) => {
         console.log('Procesando:', archivoData);
-        return archivoData?.archivo?.Nombre?.toLocaleLowerCase()?.includes(query) || archivoData?.resultado?.Nombre?.toLocaleLowerCase()?.includes(query) || archivoData?.programa?.Nombre?.toLocaleLowerCase()?.includes(query);
+        return (
+            archivoData?.archivo?.Nombre?.toLocaleLowerCase()?.includes(query) ||
+            archivoData?.resultado?.Nombre?.toLocaleLowerCase()?.includes(query) ||
+            archivoData?.competencia?.programas?.some((programa) => programa?.Nombre?.toLocaleLowerCase()?.includes(query))
+        );
     });
 });
 
@@ -83,7 +87,7 @@ const descargarArchivo = async (url, nombre) => {
             <template #title>{{ archivoData.archivo.Nombre }}</template>
             <template #subtitle>Tamaño: {{ archivoData.archivo.Tamaño }} KB</template>
             <template #content>
-                <p class="m-0">Programa: {{ archivoData.programa.Nombre }}</p>
+                <!--<p class="m-0">Programa: {{ archivoData.programa.Nombre }}</p>-->
                 <p class="m-0">Resultado de aprendizaje: {{ archivoData.resultado.Nombre }}</p>
             </template>
             <template #footer>

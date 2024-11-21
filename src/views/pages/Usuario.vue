@@ -97,7 +97,12 @@ async function saveUsuario() {
 
         if (usuario.value.id) {
             // Actualizar usuario en el backend
-            await UsuarioService.updateUsuario(usuario.value.id, { name: usuario.value.name, email: usuario.value.email, cedula: usuario.value.cedula, telefono: usuario.value.telefono });
+            await UsuarioService.updateUsuario(usuario.value.id, {
+                name: usuario.value.name,
+                email: usuario.value.email,
+                cedula: usuario.value.cedula,
+                telefono: usuario.value.telefono
+            });
             usuarios.value[findIndexById(usuario.value.id)] = usuario.value;
             toast.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario actualizado', life: 3000 });
         } else {
