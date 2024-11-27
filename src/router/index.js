@@ -63,7 +63,7 @@ const router = createRouter({
                     path: '/pages/guias',
                     name: 'guias',
                     component: () => import('@/views/pages/Guia.vue'),
-                    meta: { requiresAuth: true, roles: ['Admin', 'Coordinador'] }
+                    meta: { requiresAuth: true, roles: ['Admin', 'Coordinador', 'Instructor'] }
                 },
                 {
                     path: '/pages/relacion_programa_competencia',

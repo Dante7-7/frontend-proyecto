@@ -44,7 +44,7 @@ const fullMenuModel = [
                 label: 'Guias',
                 icon: 'pi pi-file-pdf',
                 to: '/pages/guias',
-                roles: ['Admin', 'Coordinador']
+                roles: ['Admin', 'Coordinador', 'Instructor']
             },
             {
                 label: 'Relacion-Programa-Competencia',
